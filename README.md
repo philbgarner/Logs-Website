@@ -17,13 +17,21 @@ There will be a few key parts to this system,
 # pages
 
 Landing page which could contain some stats
+
 User management page which allows access to specific pages
+
 User registration page
+
 Block / reinforcement page
+
 Chat page
+
 Command page
+
 Entity page
+
 Session page
+
 Search History page (last one done since i need to think this one more out
 
 # Ref
