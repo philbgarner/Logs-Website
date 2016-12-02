@@ -43,8 +43,10 @@
 	<!-- jQuery -->
 	<script src="js/jquery.js"></script>
 	<script src="js/flatpickr.js"></script>
-	
+
+	<!-- Load the Plugin ENUM lists for drop-downs -->	
 	<script src="js/materials.js"></script>
+	<script src="js/actions.js"></script>
 
 	<script>
 		function wrapInput(label, type, value)
@@ -162,25 +164,12 @@
 					
 					// Drop-down list to select the Action Column.
 					var col_action = wrapSelect("Action");
-					$.ajax({
-						"url": "reportData.php"
-						,"method": "GET"
-						,"contentType": "json"
-						,"data": {"reportType": "Blocks_Action"}
-						,"success": function (d)
-						{
-							$(col_action).find("select").append("<option></option>");
-							var items = d;
-							for (var i=0; i < items.length; i++)
-							{
-								$(col_action).find("select").append("<option>" + items[i].col_action + "</option>");
-							}
-						}
-						,"error": function (e)
-						{
-							console.error("Error building Item Held Right list:", e);
-						}
-					});
+					$(col_action).find("select").append("<option></option>");
+					var items = mc_actions; // Use the materials list in js/mc_materials.js
+					for (var i=0; i < items.length; i++)
+					{
+						$(col_action).find("select").append("<option>" + items[i] + "</option>");
+					}
 					
 					// Drop-down list to select the Item Held Right column.
 					var col_item_held_left = wrapSelect("Item Held Left");
