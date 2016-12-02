@@ -385,6 +385,80 @@
 					$(rparams).append(columns);
 
 				break;
+				case 'Commands':
+					
+					// Bootstrap divides the .row into 12 .col-* classes, so .col-xs-6 is like getting two 50% columns.
+					var columns = $("<div class='container'><div class='row'><div class='col-xs-6' id='col1'></div><div class='col-xs-6' id='col2'></div></div></div>");
+
+					// Textbox to Filter on Player Name Column
+					var col_player = wrapInput("Player Name", "input", "");
+					$(col_player).find("input").click(function () {
+						$(this).select();
+					});
+
+					// Textbox to Filter on Comand Column
+					var col_command = wrapInput("Command", "input", "");
+					$(col_command).find("input").click(function () {
+						$(this).select();
+					});
+
+					// Textbox to Filter on Arguments Column
+					var col_arguments = wrapInput("Arguments", "input", "");
+					$(col_arguments).find("input").click(function () {
+						$(this).select();
+					});
+					
+					var col_cancelled = $("<div><label>Cancelled <input type='checkbox'></label></div>");
+
+					// Datetime picker to Filter on Timestamp
+					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='dateto' value=''></div>" +
+						"<div style='float: right;'>Start Date/Time<br><input type='text' id='datefrom' value=''></div>");
+					$(col_timestamp).find("#datefrom").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+					$(col_timestamp).find("#dateto").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+
+					var btnFilter = document.createElement("input");
+					btnFilter.type = "button";
+					btnFilter.value = "Search";
+					
+					var applyFilter = function()
+					{
+						var params = {
+							"reportType": report
+							,"col_player": $(col_player).find("input").val()
+							,"col_command": $(col_command).find("input").val()
+							,"col_arguments": $(col_arguments).find("input").val()
+							,"col_timestamp_from": $(col_timestamp).find("#datefrom").val()
+							,"col_timestamp_to": $(col_timestamp).find("#dateto").val()
+						}
+						loadTableData(params);
+					}
+					
+					$(btnFilter).click(function () {
+						applyFilter();
+					});
+
+					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append(col_player);
+					$(columns).find("#col1").append(col_command);
+					$(columns).find("#col1").append(col_arguments);
+					$(columns).find("#col1").append(col_cancelled);
+
+					$(columns).find("#col2").append(col_timestamp);
+
+					$(columns).find("#col1").append("<hr>");
+
+					$(columns).find("input[type=text]").keypress(function (evt) {
+						if (evt.keyCode == 13)
+						{
+							applyFilter();
+						}
+					});
+
+					$(columns).find("#col1").append(btnFilter);
+					
+					$(rparams).append(columns);
+
+				break;
 			}
 		}
 		
