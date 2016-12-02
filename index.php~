@@ -301,8 +301,6 @@
 							,"col_block_type": $(col_block_type).find("select").val()
 							,"col_action": $(col_action).find("select").val()
 							,"col_content": $(col_content).find("input").val()
-							,"col_timestamp_from": $(col_timestamp).find("#datefrom").val()
-							,"col_timestamp_to": $(col_timestamp).find("#dateto").val()
 						}
 						loadTableData(params);
 					}

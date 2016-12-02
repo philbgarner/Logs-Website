@@ -140,7 +140,7 @@ switch($reportType)
 		}
 		if (isset($_GET['col_content']) && strlen($_GET['col_content']) > 0)
 		{
-			$query = $query . " $joinWord col_content LIKE '%" . $mysqli->real_escape_string($_GET['col_content']) . "%'	";
+			$query = $query . " $joinWord col_action LIKE '%" . $mysqli->real_escape_string($_GET['col_content']) . "%'	";
 			$joinWord = "AND";
 		}
 		if (isset($_GET['col_timestamp_from']) && strlen($_GET['col_timestamp_from']) > 0)
