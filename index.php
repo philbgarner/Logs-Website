@@ -298,6 +298,85 @@
 					$(rparams).append(columns);
 
 				break;
+				case 'Sessions':
+					
+					// Bootstrap divides the .row into 12 .col-* classes, so .col-xs-6 is like getting two 50% columns.
+					var columns = $("<div class='container'><div class='row'><div class='col-xs-6' id='col1'></div><div class='col-xs-6' id='col2'></div></div></div>");
+					
+					// Textbox to Filter on Session ID Column
+					var col_session = wrapInput("Session ID", "input", "");
+					$(col_session).find("input").click(function () {
+						$(this).select();
+					});
+
+					// Textbox to Filter on Player Name Column
+					var col_player = wrapInput("Player Name", "input", "");
+					$(col_player).find("input").click(function () {
+						$(this).select();
+					});
+
+					// Textbox to Filter on IP Address Column
+					var col_ipaddress = wrapInput("IP Address", "input", "");
+					$(col_ipaddress).find("input").click(function () {
+						$(this).select();
+					});
+
+					// Datetime picker to Filter on Login From/To
+					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='dateto' value=''></div>" +
+						"<div style='float: right;'>Start Date/Time<br><input type='text' id='datefrom' value=''></div>");
+					$(col_timestamp).find("#datefrom").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+					$(col_timestamp).find("#dateto").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+	
+					// Datetime picker to Filter on Logout From/To
+					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='datetologout' value=''></div>" +
+						"<div style='float: right;'>Start Date/Time<br><input type='text' id='datefromlogout' value=''></div>");
+					$(col_timestamp).find("#datefromlogout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+					$(col_timestamp).find("#datetologout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+
+					var btnFilter = document.createElement("input");
+					btnFilter.type = "button";
+					btnFilter.value = "Search";
+					
+					var applyFilter = function()
+					{
+						var params = {
+							"reportType": report
+							,"col_id": $(col_session).find("input").val()
+							,"col_player_name": $(col_player).find("input").val()
+							,"col_ip": $(col_ipaddress).find("input").val()
+							,"col_timestamp_login_from": $(col_timestamp).find("#datefrom").val()
+							,"col_timestamp_login_to": $(col_timestamp).find("#dateto").val()
+							,"col_timestamp_logout_from": $(col_timestamp).find("#datefromlogout").val()
+							,"col_timestamp_logout_to": $(col_timestamp).find("#datetologout").val()
+						}
+						loadTableData(params);
+					}
+					
+					$(btnFilter).click(function () {
+						applyFilter();
+					});
+
+					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append(col_session);
+					$(columns).find("#col1").append(col_player);
+					$(columns).find("#col1").append(col_ipaddress);
+
+					$(columns).find("#col2").append(col_timestamp);
+
+					$(columns).find("#col1").append("<hr>");
+
+					$(columns).find("input[type=text]").keypress(function (evt) {
+						if (evt.keyCode == 13)
+						{
+							applyFilter();
+						}
+					});
+
+					$(columns).find("#col1").append(btnFilter);
+					
+					$(rparams).append(columns);
+
+				break;
 			}
 		}
 		
@@ -375,26 +454,8 @@
 			$(".post-preview").click(function (m) {
 				var report = $(m.currentTarget).find("h2")[0].innerText;
 				
-				switch (report)
-				{
-					case "Blocks / Reinforcements":
-						changeReport(report);
-						loadTableData();
-					break;				
-					case "Chat":
-						changeReport(report);
-						loadTableData();
-					break;				
-					case "Commands":
-						$("#pageContainer").html("Command logs report.");
-					break;				
-					case "Entities":
-						$("#pageContainer").html("Entity logs report.");
-					break;				
-					case "Users":
-						$("#pageContainer").html("User management report.");
-					break;				
-				}
+				changeReport(report);
+				loadTableData();
 			});
 			
 		});
@@ -422,7 +483,7 @@
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav navbar-right">
 					<li>
-						<a href="index.html">Home</a>
+						<a href="index.php">Home</a>
 					</li>
 					<li>
 						<a href="login.html">Login / Register</a>
@@ -461,7 +522,7 @@
 						Reinforcement logs.
 					</h3>
 				</a>
-				<p class="post-meta">Most recent log activity: November 30, 2016</p>
+				
 			</div>
 
 			<div class="post-preview report-tile">
@@ -473,7 +534,18 @@
 			Chat history.
 					</h3>
 				</a>
-				<p class="post-meta">Most recent log activity: November 30, 2016</p>
+			</div>
+			
+
+			<div class="post-preview report-tile">
+				<a href="#">
+					<h2 class="post-title">
+						Sessions
+					</h2>
+					<h3 class="post-subtitle">
+			Session logs.
+					</h3>
+				</a>
 			</div>
 
 			<div class="post-preview report-tile">
@@ -485,7 +557,6 @@
 			Command logs.
 					</h3>
 				</a>
-				<p class="post-meta">Most recent log activity: November 30, 2016</p>
 			</div>
 
 			<div class="post-preview report-tile">
@@ -497,7 +568,6 @@
 						Entity logs.
 					</h3>
 				</a>
-				<p class="post-meta">Most recent log activity: November 30, 2016</p>
 			</div>
 			
 
@@ -510,7 +580,6 @@
 						User management.
 					</h3>
 				</a>
-				<p class="post-meta">Most recent log activity: November 30, 2016</p>
 			</div>
 
 		</div>

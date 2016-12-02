@@ -156,26 +156,67 @@ switch($reportType)
 
 		$query = $query . ";";// COMMIT;";
 	break;
-	case 'Blocks_ItemsHeldLeft':
+	case 'Sessions':
 		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT 	DISTINCT col_item_held_left 	FROM civex_logging.tbl_block_log; "; // COMMIT;";
-	break;
-	case 'Blocks_ItemsHeldRight':
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT 	DISTINCT col_item_held_right 	FROM civex_logging.tbl_block_log; "; // COMMIT;";
-	break;
-	case 'Blocks_Types':
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT 	DISTINCT col_block_type 	FROM civex_logging.tbl_block_log; "; // COMMIT;";
-	break;
-	case 'Blocks_Action':
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT 	DISTINCT col_action 	FROM civex_logging.tbl_block_log; "; // COMMIT;";
-	break;
-	case '':
-		$mysqli->close();
-		echo "[{\"message\":\"Select your filters above and click 'Search'.\"}]";
-		exit;
+		$query = "SELECT
+				'Id' AS col_id
+				,'Player UUID' AS col_player_uuid
+				,'Player Name' AS col_player_name
+				,'IP Address' AS col_ip
+				,'Login Time' AS col_login
+				,'Logout Time' AS col_logout ";
+			/*UNION SELECT 	col_id
+					,col_player_uuid
+					,col_player_name
+					,col_ip
+					,col_login
+					,col_logout
+	 		FROM civex_logging.tbl_session_log ";*/ // No session table yet on test server. Return only headers.	
+
+		// Only append WHERE if it's the first condition in the list of parameters.
+		$joinWord = "WHERE";
+
+		// Using $mysqli->real_escape_string instead of the canonical way to prepare statements
+		// because it's really awkward to do with mysqli on dynamically generated queries.
+		// Simply escaping like this should prevent injection attacks.
+		
+		if (isset($_GET['col_player']) && strlen($_GET['col_player']) > 0)
+		{
+			$query = $query . " $joinWord col_player_name LIKE '%" . $mysqli->real_escape_string($_GET['col_player']) . "%'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_playerUUID']) && strlen($_GET['col_playerUUID']) > 0)
+		{
+			$query = $query . " $joinWord col_player_uuid LIKE '%" . $mysqli->real_escape_string($_GET['col_playerUUID']) . "%'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_ip']) && strlen($_GET['col_ip']) > 0)
+		{
+			$query = $query . " $joinWord col_ip LIKE '%" . $mysqli->real_escape_string($_GET['col_ip']) . "%'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_timestamp_login_from']) && strlen($_GET['col_timestamp_login_from']) > 0)
+		{
+			$query = $query . " $joinWord col_login >= '" . $mysqli->real_escape_string($_GET['col_timestamp_login_from']) . "'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_timestamp_login_from']) && strlen($_GET['col_timestamp_login_to']) > 0)
+		{
+			$query = $query . " $joinWord col_login <= '" . $mysqli->real_escape_string($_GET['col_timestamp_login_to']) . "'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_timestamp_logout_from']) && strlen($_GET['col_timestamp_logout_from']) > 0)
+		{
+			$query = $query . " $joinWord col_login >= '" . $mysqli->real_escape_string($_GET['col_timestamp_login_from']) . "'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_timestamp_logout_from']) && strlen($_GET['col_timestamp_logout_to']) > 0)
+		{
+			$query = $query . " $joinWord col_logout <= '" . $mysqli->real_escape_string($_GET['col_timestamp_logout_to']) . "'	";
+			$joinWord = "AND";
+		}
+
+		$query = $query . ";";// COMMIT;";
 	break;
 	default:
 		$mysqli->close();
