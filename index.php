@@ -58,6 +58,13 @@
 			return $("<div>" + label + ": <br><select></select> </div>");
 		}
 	
+		function goHome()
+		{
+			$("#nav").slideDown();
+			$("#reports").slideUp("fast");
+			$("#reportParams").empty();
+		}
+	
 		function changeReport(report)
 		{
 			// This function is called when the user selects a report from the initial menu.
@@ -328,10 +335,10 @@
 					$(col_timestamp).find("#dateto").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
 	
 					// Datetime picker to Filter on Logout From/To
-					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='datetologout' value=''></div>" +
+					var col_timestamp2 = $("<div style='float: right;'>End Date/Time<br><input type='text' id='datetologout' value=''></div>" +
 						"<div style='float: right;'>Start Date/Time<br><input type='text' id='datefromlogout' value=''></div>");
-					$(col_timestamp).find("#datefromlogout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
-					$(col_timestamp).find("#datetologout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+					$(col_timestamp2).find("#datefromlogout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+					$(col_timestamp2).find("#datetologout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
 
 					var btnFilter = document.createElement("input");
 					btnFilter.type = "button";
@@ -346,8 +353,8 @@
 							,"col_ip": $(col_ipaddress).find("input").val()
 							,"col_timestamp_login_from": $(col_timestamp).find("#datefrom").val()
 							,"col_timestamp_login_to": $(col_timestamp).find("#dateto").val()
-							,"col_timestamp_logout_from": $(col_timestamp).find("#datefromlogout").val()
-							,"col_timestamp_logout_to": $(col_timestamp).find("#datetologout").val()
+							,"col_timestamp_logout_from": $(col_timestamp2).find("#datefromlogout").val()
+							,"col_timestamp_logout_to": $(col_timestamp2).find("#datetologout").val()
 						}
 						loadTableData(params);
 					}
@@ -362,6 +369,7 @@
 					$(columns).find("#col1").append(col_ipaddress);
 
 					$(columns).find("#col2").append(col_timestamp);
+					$(columns).find("#col2").append(col_timestamp2);
 
 					$(columns).find("#col1").append("<hr>");
 
@@ -483,7 +491,7 @@
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav navbar-right">
 					<li>
-						<a href="index.php">Home</a>
+						<a href="#" onclick="goHome();">Home</a>
 					</li>
 					<li>
 						<a href="login.html">Login / Register</a>
