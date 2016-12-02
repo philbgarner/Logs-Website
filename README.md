@@ -37,6 +37,17 @@ Search History page (last one done since i need to think this one more out
 # Ref
 
 This picture is of a previous version that I've had just for refrence, (i know its ugly but it worked)
+
+Blocks
 ![](http://i.imgur.com/KVY4MD4.png)
+
+Chat
+![](http://i.imgur.com/a7FVod9.png)
+
+Session
+![](http://i.imgur.com/SeNskRZ.png)
+
+
+
 
 [This is a link to a new Dev discord I made](https://discord.gg/rfeZEqM "Instant Invite link") It's currently setup so that I need to approve people so that we will know whos who in there. Just PM me on reddit with your name there and if you want me to change your nick.
