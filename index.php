@@ -43,6 +43,8 @@
 	<!-- jQuery -->
 	<script src="js/jquery.js"></script>
 	<script src="js/flatpickr.js"></script>
+	
+	<script src="js/materials.js"></script>
 
 	<script>
 		function wrapInput(label, type, value)
@@ -181,76 +183,36 @@
 					});
 					
 					// Drop-down list to select the Item Held Right column.
-					// Empty initially, we'll make a separate AJAX call to get the 
-					// possible values for this drop-down.
 					var col_item_held_left = wrapSelect("Item Held Left");
-					$.ajax({
-						"url": "reportData.php"
-						,"method": "GET"
-						,"contentType": "json"
-						,"data": {"reportType": "Blocks_ItemsHeldLeft"}
-						,"success": function (d)
-						{
-							$(col_item_held_left).find("select").append("<option></option>");
-							var items = d;
-							for (var i=0; i < items.length; i++)
-							{
-								$(col_item_held_left).find("select").append("<option>" + items[i].col_item_held_left + "</option>");
-							}
-						}
-						,"error": function (e)
-						{
-							console.error("Error building Item Held Left list:", e);
-						}
-					});
+
+					$(col_item_held_left).find("select").append("<option></option>");
+					var items = mc_materials; // Use the materials list in js/mc_materials.js
+					for (var i=0; i < items.length; i++)
+					{
+						$(col_item_held_left).find("select").append("<option>" + items[i] + "</option>");
+					}
+
 
 					// Drop-down list to select the Item Held Right column.
-					// Empty initially, we'll make a separate AJAX call to get the 
-					// possible values for this drop-down.
 					var col_item_held_right = wrapSelect("Item Held Right");
-					$.ajax({
-						"url": "reportData.php"
-						,"method": "GET"
-						,"contentType": "json"
-						,"data": {"reportType": "Blocks_ItemsHeldRight"}
-						,"success": function (d)
-						{
-							$(col_item_held_right).find("select").append("<option></option>");
-							var items = d;
-							for (var i=0; i < items.length; i++)
-							{
-								$(col_item_held_right).find("select").append("<option>" + items[i].col_item_held_right + "</option>");
-							}
-						}
-						,"error": function (e)
-						{
-							console.error("Error building Item Held Right list:", e);
-						}
-					});
+
+					$(col_item_held_right).find("select").append("<option></option>");
+					var items = mc_materials; // Use the materials list in js/mc_materials.js
+					for (var i=0; i < items.length; i++)
+					{
+						$(col_item_held_right).find("select").append("<option>" + items[i] + "</option>");
+					}
+
 					
 					// Drop-down list to select the Block Type column.
-					// Empty initially, we'll make a separate AJAX call to get the 
-					// possible values for this drop-down.
 					var col_block_type = wrapSelect("Block Type");
-					$.ajax({
-						"url": "reportData.php"
-						,"method": "GET"
-						,"contentType": "json"
-						,"data": {"reportType": "Blocks_Types"}
-						,"success": function (d)
-						{
-							$(col_block_type).find("select").append("<option></option>");
-							var items = d;
-							for (var i=0; i < items.length; i++)
-							{
-								$(col_block_type).find("select").append("<option>" + items[i].col_block_type + "</option>");
-							}
-						}
-						,"error": function (e)
-						{
-							console.error("Error building Item Held Right list:", e);
-						}
-					});
+
+					$(col_block_type).find("select").append("<option></option>");
+					var items = mc_materials; // Use the materials list in js/mc_materials.js
+					for (var i=0; i < items.length; i++)
+					{
+						$(col_block_type).find("select").append("<option>" + items[i] + "</option>");
+					}
 										
 					// Textbox to Filter on Block Position Column
 					var col_position = wrapInput("Position", "input", "");
