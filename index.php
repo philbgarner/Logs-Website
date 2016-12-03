@@ -47,6 +47,7 @@
 	<!-- Load the Plugin ENUM lists for drop-downs -->	
 	<script src="js/materials.js"></script>
 	<script src="js/actions.js"></script>
+	<script src="js/entities.js"></script>
 
 	<script>
 		function wrapInput(label, type, value)
@@ -289,10 +290,10 @@
 							applyFilter();
 						}
 					});
-					// Different on click behavior for the position field.
+					// Different on keypress behavior for the position field.
 					$(col_position).find("input").keypress(function (evt) {
 						var key = String.fromCharCode(evt.which)
-						var re = /[^0-9 ]/;
+						var re = /[^0-9 \-]/;
 						if (key.match(re))
 						{
 							evt.preventDefault();
@@ -329,14 +330,14 @@
 					});
 
 					// Datetime picker to Filter on Login From/To
-					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='dateto' value=''></div>" +
-						"<div style='float: right;'>Start Date/Time<br><input type='text' id='datefrom' value=''></div>");
+					var col_timestamp = $("<div style='float: right;'>Login End Date/Time<br><input type='text' id='dateto' value=''></div>" +
+						"<div style='float: right;'>Login Start Date/Time<br><input type='text' id='datefrom' value=''></div>");
 					$(col_timestamp).find("#datefrom").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
 					$(col_timestamp).find("#dateto").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
 	
 					// Datetime picker to Filter on Logout From/To
-					var col_timestamp2 = $("<div style='float: right;'>End Date/Time<br><input type='text' id='datetologout' value=''></div>" +
-						"<div style='float: right;'>Start Date/Time<br><input type='text' id='datefromlogout' value=''></div>");
+					var col_timestamp2 = $("<div style='float: right;'>Logout End Date/Time<br><input type='text' id='datetologout' value=''></div>" +
+						"<div style='float: right;'>Logout Start Date/Time<br><input type='text' id='datefromlogout' value=''></div>");
 					$(col_timestamp2).find("#datefromlogout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
 					$(col_timestamp2).find("#datetologout").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
 
@@ -408,7 +409,8 @@
 						$(this).select();
 					});
 					
-					var col_cancelled = $("<div><label>Cancelled <input type='checkbox'></label></div>");
+					var col_cancelled = wrapSelect("Cancelled");
+					$(col_cancelled).find("select").append($("<option></option><option>Yes</option><option>No</option>"));
 
 					// Datetime picker to Filter on Timestamp
 					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='dateto' value=''></div>" +
@@ -422,11 +424,24 @@
 					
 					var applyFilter = function()
 					{
+						var cancelVal = undefined;
+						if ($(col_cancelled).find("option:selected").val() == "Yes")
+						{
+							cancelVal = 1;
+						}
+						else if ($(col_cancelled).find("option:selected").val() == "No")
+						{	
+							cancelVal = 0;
+						}
+
+						alert($(col_cancelled).find("option:selected").val() + ", " + cancelVal);
+
 						var params = {
 							"reportType": report
 							,"col_player": $(col_player).find("input").val()
 							,"col_command": $(col_command).find("input").val()
 							,"col_arguments": $(col_arguments).find("input").val()
+							,"col_cancelled": cancelVal
 							,"col_timestamp_from": $(col_timestamp).find("#datefrom").val()
 							,"col_timestamp_to": $(col_timestamp).find("#dateto").val()
 						}
@@ -451,6 +466,116 @@
 						if (evt.keyCode == 13)
 						{
 							applyFilter();
+						}
+					});
+
+					$(columns).find("#col1").append(btnFilter);
+					
+					$(rparams).append(columns);
+
+				break;
+				case 'Entities':
+					
+					// Bootstrap divides the .row into 12 .col-* classes, so .col-xs-6 is like getting two 50% columns.
+					var columns = $("<div class='container'><div class='row'><div class='col-xs-6' id='col1'></div><div class='col-xs-6' id='col2'></div></div></div>");
+
+					// Drop-down list to select the Entity Type column.
+					var col_entity_type = wrapSelect("Entity Type");
+
+					$(col_entity_type).find("select").append("<option></option>");
+					var items = mc_entities; // Use the entities list in js/mc_entities.js
+					for (var i=0; i < items.length; i++)
+					{
+						$(col_entity_type).find("select").append("<option>" + items[i] + "</option>");
+					}
+
+
+					var col_jocky = wrapSelect("Jocky");
+					$(col_jocky).find("select").append($("<option></option><option>Yes</option><option>No</option>"));
+
+
+					// Textbox to Filter on Entity Location Column
+					var col_entity = wrapInput("Entity Location", "input", "");
+
+					// Different on click behavior for the entity location field.
+					$(col_entity).find("input").click(function () {
+
+						if ($(this).text().length == 0)
+						{
+							$(this).text("0 0 0");
+						}
+
+						$(this).select();
+					});
+
+										
+					var col_cancelled = $("<div><label>Cancelled <input type='checkbox'></label></div>");
+
+					// Datetime picker to Filter on Timestamp
+					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='dateto' value=''></div>" +
+						"<div style='float: right;'>Start Date/Time<br><input type='text' id='datefrom' value=''></div>");
+					$(col_timestamp).find("#datefrom").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+					$(col_timestamp).find("#dateto").flatpickr({enableTime: true, inline: true, time_24hr: true, allowInput: true});
+
+					var btnFilter = document.createElement("input");
+					btnFilter.type = "button";
+					btnFilter.value = "Search";
+					
+					var applyFilter = function()
+					{
+						var jockyVal = undefined;
+						if ($(col_jocky).find("option:selected").val() == "Yes")
+						{
+							jockyVal = 1;
+						}
+						else if ($(col_jocky).find("option:selected").val() == "No")
+						{	
+							jockyVal = 0;
+						}
+						
+						var eloc = $(col_entity).find("input").val().split(" ");
+						var params = {
+							"reportType": report
+							,"col_entity_type": $(col_entity_type).find("option:selected").val()
+							,"col_jocky": jockyVal
+							,"col_x": eloc[0]
+							,"col_y": eloc[1]
+							,"col_z": eloc[2]
+							,"col_timestamp_from": $(col_timestamp).find("#datefrom").val()
+							,"col_timestamp_to": $(col_timestamp).find("#dateto").val()
+						}
+						loadTableData(params);
+					}
+					
+					$(btnFilter).click(function () {
+						applyFilter();
+					});
+
+					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append(col_entity_type);
+					$(columns).find("#col1").append(col_jocky);
+					$(columns).find("input[type=text]").keypress(function (evt) {
+						if (evt.keyCode == 13)
+						{
+							applyFilter();
+						}
+					});
+					
+					$(columns).find("#col1").append(col_entity);
+
+					$(columns).find("#col2").append(col_timestamp);
+
+					$(columns).find("#col1").append("<hr>");
+
+					// Different on keypress behavior for the entity location field.
+					$(col_entity).find("input").keypress(function (evt) {
+						var key = String.fromCharCode(evt.which)
+						var re = /[^0-9 \-]/;
+						if (key.match(re) && 
+							!(evt.keyCode == 13 || evt.keyCode == 8 || evt.keyCode == 9)
+						)
+						{
+							evt.preventDefault();
 						}
 					});
 

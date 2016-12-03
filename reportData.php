@@ -165,14 +165,14 @@ switch($reportType)
 				,'Player Name' AS col_player_name
 				,'IP Address' AS col_ip
 				,'Login Time' AS col_login
-				,'Logout Time' AS col_logout ";
-			/*UNION SELECT 	col_id
+				,'Logout Time' AS col_logout 
+			UNION SELECT 	col_id
 					,col_player_uuid
 					,col_player_name
 					,col_ip
 					,col_login
 					,col_logout
-	 		FROM civex_logging.tbl_session_log ";*/ // No session table yet on test server. Return only headers.	
+	 		FROM civex_logging.tbl_session_log ";
 
 		// Only append WHERE if it's the first condition in the list of parameters.
 		$joinWord = "WHERE";
@@ -181,14 +181,9 @@ switch($reportType)
 		// because it's really awkward to do with mysqli on dynamically generated queries.
 		// Simply escaping like this should prevent injection attacks.
 		
-		if (isset($_GET['col_player']) && strlen($_GET['col_player']) > 0)
+		if (isset($_GET['col_player_name']) && strlen($_GET['col_player_name']) > 0)
 		{
-			$query = $query . " $joinWord col_player_name LIKE '%" . $mysqli->real_escape_string($_GET['col_player']) . "%'	";
-			$joinWord = "AND";
-		}
-		if (isset($_GET['col_playerUUID']) && strlen($_GET['col_playerUUID']) > 0)
-		{
-			$query = $query . " $joinWord col_player_uuid LIKE '%" . $mysqli->real_escape_string($_GET['col_playerUUID']) . "%'	";
+			$query = $query . " $joinWord col_player_name LIKE '%" . $mysqli->real_escape_string($_GET['col_player_name']) . "%'	";
 			$joinWord = "AND";
 		}
 		if (isset($_GET['col_ip']) && strlen($_GET['col_ip']) > 0)
@@ -208,7 +203,7 @@ switch($reportType)
 		}
 		if (isset($_GET['col_timestamp_logout_from']) && strlen($_GET['col_timestamp_logout_from']) > 0)
 		{
-			$query = $query . " $joinWord col_login >= '" . $mysqli->real_escape_string($_GET['col_timestamp_login_from']) . "'	";
+			$query = $query . " $joinWord col_logout >= '" . $mysqli->real_escape_string($_GET['col_timestamp_login_from']) . "'	";
 			$joinWord = "AND";
 		}
 		if (isset($_GET['col_timestamp_logout_to']) && strlen($_GET['col_timestamp_logout_to']) > 0)
@@ -216,7 +211,6 @@ switch($reportType)
 			$query = $query . " $joinWord col_logout <= '" . $mysqli->real_escape_string($_GET['col_timestamp_logout_to']) . "'	";
 			$joinWord = "AND";
 		}
-
 		$query = $query . ";";// COMMIT;";
 	break;
 	case 'Commands':
@@ -228,14 +222,13 @@ switch($reportType)
 				,'Command' AS col_command
 				,'Arguments' AS col_arguments
 				,'Cancelled' AS col_cancelled
- 			";
-			/*UNION SELECT 	col_id
+ 			UNION SELECT 	col_id
 					,col_timestamp
 					,col_player
 					,col_command
 					,col_arguments
 					,col_cancelled
-	 		FROM civex_logging.tbl_commands_log ";*/ // No commands table yet on test server. Return only headers.	
+	 		FROM civex_logging.tbl_command_log ";
 
 		// Only append WHERE if it's the first condition in the list of parameters.
 		$joinWord = "WHERE";
@@ -272,6 +265,71 @@ switch($reportType)
 		if (isset($_GET['col_timestamp_to']) && strlen($_GET['col_timestamp_to']) > 0)
 		{
 			$query = $query . " $joinWord col_timestamp >= '" . $mysqli->real_escape_string($_GET['col_timestamp_to']) . "'	";
+			$joinWord = "AND";
+		}
+
+		$query = $query . ";";// COMMIT;";
+	break;
+	case 'Entities':
+	
+		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+		$query = "SELECT
+				'Id' AS col_id
+				,'Entity Type' AS col_entity_type
+				,'Timestamp' AS col_timestamp
+				,'Jocky' AS col_jocky
+				,'EntityX' AS col_x
+				,'EntityY' AS col_y
+				,'EntityZ' AS col_z
+			UNION SELECT 	col_id
+					,col_entity_type
+					,col_timestamp
+					,col_jocky
+					,col_x
+					,col_y
+					,col_z
+	 		FROM civex_logging.tbl_entity_spawn_log ";
+
+		// Only append WHERE if it's the first condition in the list of parameters.
+		$joinWord = "WHERE";
+
+		// Using $mysqli->real_escape_string instead of the canonical way to prepare statements
+		// because it's really awkward to do with mysqli on dynamically generated queries.
+		// Simply escaping like this should prevent injection attacks.
+		
+		if (isset($_GET['col_entity_type']) && strlen($_GET['col_entity_type']) > 0)
+		{
+			$query = $query . " $joinWord col_entity_type LIKE '%" . $mysqli->real_escape_string($_GET['col_entity_type']) . "%'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_jocky']) && strlen($_GET['col_jocky']) > 0)
+		{
+			$query = $query . " $joinWord col_jocky =" . $mysqli->real_escape_string($_GET['col_jocky']) . "	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_x']) && strlen($_GET['col_x']) > 0)
+		{
+			$query = $query . " $joinWord col_x = " . $mysqli->real_escape_string($_GET['col_x']) . "	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_y']) && strlen($_GET['col_y']) > 0)
+		{
+			$query = $query . " $joinWord col_y = " . $mysqli->real_escape_string($_GET['col_y']) . "	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_z']) && strlen($_GET['col_z']) > 0)
+		{
+			$query = $query . " $joinWord col_z = " . $mysqli->real_escape_string($_GET['col_z']) . "	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_timestamp_from']) && strlen($_GET['col_timestamp_from']) > 0)
+		{
+			$query = $query . " $joinWord col_timestamp >= '" . $mysqli->real_escape_string($_GET['col_timestamp_from']) . "'	";
+			$joinWord = "AND";
+		}
+		if (isset($_GET['col_timestamp_to']) && strlen($_GET['col_timestamp_to']) > 0)
+		{
+			$query = $query . " $joinWord col_timestamp <= '" . $mysqli->real_escape_string($_GET['col_timestamp_to']) . "'	";
 			$joinWord = "AND";
 		}
 
