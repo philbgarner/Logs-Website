@@ -1,3 +1,36 @@
+<?php
+include_once("config.php");
+include_once("includes/functions.php");
+
+ini_set('display_errors', 1);
+
+//print_r($_GET);die;
+
+if(isset($_REQUEST['code'])){
+	$gClient->authenticate();
+	$_SESSION['token'] = $gClient->getAccessToken();
+	header('Location:' . filter_var($redirectUrl, FILTER_SANITIZE_URL));
+}
+
+if (isset($_SESSION['token'])) {
+	$gClient->setAccessToken($_SESSION['token']);
+}
+
+if ($gClient->getAccessToken()) {
+	$userProfile = $google_oauthV2->userinfo->get();
+	//DB Insert
+	$gUser = new Users();
+	$gUser->checkUser('google',$userProfile['id'],$userProfile['given_name'],$userProfile['family_name'],$userProfile['email'],$userProfile['gender'],$userProfile['locale'],$userProfile['link'],$userProfile['picture']);
+	$_SESSION['google_data'] = $userProfile; // Storing Google User Data in Session
+	//header("Location: index.php");
+	$_SESSION['token'] = $gClient->getAccessToken();
+} else {
+	$authUrl = $gClient->createAuthUrl();
+}
+
+
+include_once('dbconfig.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,6 +41,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
+	
+	<meta name="google-site-verification" content="vfRCO2UBt0e_dFDVupt2po23bF7AIHC9YE5R5aZ1tM0" />
 
 	<title>CivEx3 Logs</title>
 
@@ -35,6 +70,52 @@
 			float: left;
 			width: 15em;
 			height: 10em;
+		}
+		.report-tile a img
+		{
+			float: left;
+			width: 75px;
+			height: 75px;
+			margin: 5px;
+			cursor: pointer;
+		}
+		.grouplist
+		{
+			list-style-type: none;
+			
+			height: 3em;
+			
+			padding: 5px;
+			margin: 0px;
+			margin-left: 25px;
+		}
+		.grouplist li span.label
+		{
+			color: #090909;
+			padding-right: 15px;
+		}
+		.grouplist li
+		{
+			float: left;
+
+			width: auto;
+			height: 2em;
+			
+			padding: 5px;
+			padding-left: 10px;
+			padding-right: 10px;
+			margin: 5px;
+			
+			border-radius: 5px;
+			-moz-border-radius: 5px;
+			
+			border-style: none;
+			background-color: #e9e9e9;
+			float: left;
+			
+			font: italic 12pt arial, sans-serif !important;
+			
+			color: #090909;
 		}
 
 	
@@ -66,7 +147,7 @@
 			$("#reportParams").empty();
 		}
 	
-		function changeReport(report)
+		function changeReport(report, reportId)
 		{
 			// This function is called when the user selects a report from the initial menu.
 			// The navigaiton bar is hidden from view and the report parameters panel is 
@@ -86,27 +167,15 @@
 					
 					// Textbox to Filter on Message Column
 					var col_message = wrapInput("Message", "input", "");
-					$(col_message).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Channel Column
 					var col_channel = wrapInput("Channel", "input", "");
-					$(col_channel).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Sender Column
 					var col_sender = wrapInput("Sender", "input", "");
-					$(col_sender).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Receiver Column
 					var col_receiver = wrapInput("Receiver", "input", "");
-					$(col_receiver).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Datetime picker to Filter on Timestamp From
 					var col_timestamp = $("<div style='float: right;'>End Date/Time<br><input type='text' id='dateto' value=''></div>" +
@@ -121,7 +190,7 @@
 					var applyFilter = function()
 					{
 						var params = {
-							"reportType": report
+							"reportType": reportId
 							,"col_message": $(col_message).find("input").val()
 							,"col_channel": $(col_channel).find("input").val()
 							,"col_sender": $(col_sender).find("input").val()
@@ -165,9 +234,6 @@
 					
 					// Textbox to Filter on Player Name
 					var col_playername = wrapInput("Player Name", "input", "");
-					$(col_playername).find("input").click(function () {
-						$(this).select();
-					});
 
 					
 					// Drop-down list to select the Action Column.
@@ -213,21 +279,12 @@
 										
 					// Textbox to Filter on Block Position Column
 					var col_position = wrapInput("Position", "input", "");
-					$(col_position).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Block Position +/- Column
 					var col_position_plusminus = wrapInput("Position +/-", "", "");
-					$(col_position_plusminus).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Content Column
 					var col_content = wrapInput("Content", "input", "");
-					$(col_content).find("input").click(function () {
-						$(this).select();
-					});
 					
 					// Different on click behavior for the position field.
 					$(col_position).find("input").click(function () {
@@ -253,7 +310,7 @@
 					var applyFilter = function()
 					{
 						var params = {
-							"reportType": report
+							"reportType": reportId
 							,"col_playername": $(col_playername).find("input").val()
 							,"col_item_held_left": $(col_item_held_left).find("select").val()
 							,"col_item_held_right": $(col_item_held_right).find("select").val()
@@ -263,7 +320,16 @@
 							,"col_timestamp_from": $(col_timestamp).find("#datefrom").val()
 							,"col_timestamp_to": $(col_timestamp).find("#dateto").val()
 						}
-						loadTableData(params);
+						loadTableData(params, function () {
+							$("#pageContainer tr").each(function (index) {
+								var col = $(this).find("td").eq(7);
+								$(col).text(parseFloat($(col).text()).toFixed(1));
+								var col = $(this).find("td").eq(8);
+								$(col).text(parseFloat($(col).text()).toFixed(1));
+								var col = $(this).find("td").eq(9);
+								$(col).text(parseFloat($(col).text()).toFixed(1));
+							});
+						});
 					}
 					
 					$(btnFilter).click(function () {
@@ -313,21 +379,12 @@
 					
 					// Textbox to Filter on Session ID Column
 					var col_session = wrapInput("Session ID", "input", "");
-					$(col_session).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Player Name Column
 					var col_player = wrapInput("Player Name", "input", "");
-					$(col_player).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on IP Address Column
 					var col_ipaddress = wrapInput("IP Address", "input", "");
-					$(col_ipaddress).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Datetime picker to Filter on Login From/To
 					var col_timestamp = $("<div style='float: right;'>Login End Date/Time<br><input type='text' id='dateto' value=''></div>" +
@@ -348,7 +405,7 @@
 					var applyFilter = function()
 					{
 						var params = {
-							"reportType": report
+							"reportType": reportId
 							,"col_id": $(col_session).find("input").val()
 							,"col_player_name": $(col_player).find("input").val()
 							,"col_ip": $(col_ipaddress).find("input").val()
@@ -393,21 +450,12 @@
 
 					// Textbox to Filter on Player Name Column
 					var col_player = wrapInput("Player Name", "input", "");
-					$(col_player).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Comand Column
 					var col_command = wrapInput("Command", "input", "");
-					$(col_command).find("input").click(function () {
-						$(this).select();
-					});
 
 					// Textbox to Filter on Arguments Column
 					var col_arguments = wrapInput("Arguments", "input", "");
-					$(col_arguments).find("input").click(function () {
-						$(this).select();
-					});
 					
 					var col_cancelled = wrapSelect("Cancelled");
 					$(col_cancelled).find("select").append($("<option></option><option>Yes</option><option>No</option>"));
@@ -434,10 +482,8 @@
 							cancelVal = 0;
 						}
 
-						alert($(col_cancelled).find("option:selected").val() + ", " + cancelVal);
-
 						var params = {
-							"reportType": report
+							"reportType": reportId
 							,"col_player": $(col_player).find("input").val()
 							,"col_command": $(col_command).find("input").val()
 							,"col_arguments": $(col_arguments).find("input").val()
@@ -535,16 +581,25 @@
 						
 						var eloc = $(col_entity).find("input").val().split(" ");
 						var params = {
-							"reportType": report
+							"reportType": reportId
 							,"col_entity_type": $(col_entity_type).find("option:selected").val()
 							,"col_jocky": jockyVal
-							,"col_x": eloc[0]
+							,"cGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGgggggggggol_x": eloc[0]
 							,"col_y": eloc[1]
 							,"col_z": eloc[2]
 							,"col_timestamp_from": $(col_timestamp).find("#datefrom").val()
 							,"col_timestamp_to": $(col_timestamp).find("#dateto").val()
 						}
-						loadTableData(params);
+						loadTableData(params, function () {
+							$("#pageContainer tr").each(function (index) {
+								var col = $(this).find("td").eq(4);
+								$(col).text(parseFloat($(col).text()).toFixed(1));
+								var col = $(this).find("td").eq(5);
+								$(col).text(parseFloat($(col).text()).toFixed(1));
+								var col = $(this).find("td").eq(6);
+								$(col).text(parseFloat($(col).text()).toFixed(1));
+							});
+						});
 					}
 					
 					$(btnFilter).click(function () {
@@ -582,6 +637,363 @@
 					$(columns).find("#col1").append(btnFilter);
 					
 					$(rparams).append(columns);
+
+				break;
+				case 'Users':
+					
+					// Bootstrap divides the .row into 12 .col-* classes, so .col-xs-6 is like getting two 50% columns.
+					var columns = $("<div class='container'><div class='row'><div class='col-xs-6' id='col1'></div><div class='col-xs-6' id='col2'></div></div></div>");
+
+					// Textbox to Filter on Player Name Column
+					var col_admin = wrapInput("Admin Name", "input", "");
+
+					var col_groups = wrapInput("Group(s)", "input", "");
+
+					var btnFilter = document.createElement("input");
+					btnFilter.type = "button";
+					btnFilter.value = "Search";
+					
+					var btnNewGroup = document.createElement("input");
+					btnNewGroup.type = "button";
+					btnNewGroup.value = "New Group";
+					$(btnNewGroup).click(function () {
+						
+						var newname = prompt("Enter New Group Name");
+						
+						$.ajax({
+							"url": "reportData.php"
+							,"method": "GET"
+							,"contentType": "json"
+							,"data": {"reportType": "Report_New_Group"
+								, "col_group_name": newname}
+							,"success": function (d)
+							{
+								btnNewGroup.text("Saved!");
+								window.setTimeout(function () { $(btnNewGroup).text("New Group"); });
+							}
+							,"error": function (e)
+							{
+								btnNewGroup.text("Error.");
+								console.error("Error creating group:", e);
+							}
+						});						
+					});
+					
+					var applyFilter = function()
+					{
+
+						var params = {
+							"reportType": reportId
+							,"col_admin": $(col_admin).find("input").val()
+							,"col_groups": $(col_groups).find("input").val()
+						}
+						loadTableData(params, function () {
+							$("#pageContainer tr").each(function (index) {
+								var col = $(this).find("td").eq(1);
+								var el = $("<img src='" + $(col).text() + "' width=64 height=64>");
+								$(col).empty().append(el);
+							});
+							$("#pageContainer tr").each(function (index) {
+								var col_oauth_id = $(this).find("td").eq(7).text();
+								if (col_oauth_id == "null")
+									col_oauth_id = "";
+									
+								$(this).off("click").click(function () {
+									loadUserGroupsData($(this).find("td").eq(0).text());
+									$("#currentGroups").empty().text("Loading...");
+									$("#availableGroups").empty().text("Loading...");
+									$("#btnSaveChanges").text("Save Changes");
+									$("#btnSaveChanges").off("click").click(function () {
+										var saveButton = $(this);
+										saveButton.text("Saving...");
+										
+										var cgEl = $("#currentGroups li");
+										var curGroups = "";
+										for (var i=0; i<cgEl.length; i++)
+										{
+											curGroups += $(cgEl[i]).find("span").eq(0).text();
+											if (i < cgEl.length - 1)
+											{
+												curGroups += ",";
+											}
+										}
+										
+										$.ajax({
+											"url": "reportData.php"
+											,"method": "GET"
+											,"contentType": "json"
+											,"data": {"reportType": "Users_Set_Groups", "col_user_oauth_id": col_oauth_id, "col_group_names": curGroups}
+											,"success": function (d)
+											{
+												saveButton.text("Saved!");
+												window.setTimeout(function () { $("#dlgUserGroups").modal("hide"); applyFilter();}, 600);
+											}
+											,"error": function (e)
+											{
+												saveButton.text("Error.");
+												console.error("Error building chat table:", e);
+											}
+										});
+			
+									});
+									$("#dlgUserGroups").modal();
+								});
+							});
+						});
+					}
+					
+					$(btnFilter).click(function () {
+						applyFilter();
+					});
+
+					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append(col_admin);
+					$(columns).find("#col1").append(col_groups);
+
+					$(columns).find("#col1").append("<hr>");
+
+					$(columns).find("input[type=text]").keypress(function (evt) {
+						if (evt.keyCode == 13)
+						{
+							applyFilter();
+						}
+					});
+
+					$(columns).find("#col1").append(btnFilter);
+
+					
+					$(rparams).append(columns);
+
+				break;
+				case 'Report Management':
+					
+					// Bootstrap divides the .row into 12 .col-* classes, so .col-xs-6 is like getting two 50% columns.
+					var columns = $("<div class='container'><div class='row'><div class='col-xs-6' id='col1'></div><div class='col-xs-6' id='col2'></div></div></div>");
+
+					// Textbox to Filter on Player Name Column
+					var col_name = wrapInput("Report Name", "input", "");
+
+					var col_desc = wrapInput("Description", "input", "");
+
+					var col_group = wrapInput("Group(s)", "input", "");
+
+					var btnFilter = document.createElement("input");
+					btnFilter.type = "button";
+					btnFilter.value = "Search";
+					
+					var applyFilter = function()
+					{
+
+						var params = {
+							"reportType": reportId
+							,"col_report_name": $(col_name).find("input").val()
+							,"col_report_description": $(col_desc).find("input").val()
+						};
+						loadTableData(params, function () {
+							$("#pageContainer tr").each(function (index) {
+								var col_id = $(this).find("td").eq(0).text();
+									
+								$(this).off("click").click(function () {
+									loadReportGroupsData($(this).find("td").eq(0).text());
+									$("#currentReportGroups").empty().text("Loading...");
+									$("#availableReportGroups").empty().text("Loading...");
+									$("#btnReportSaveChanges").text("Save Changes");
+									$("#btnReportSaveChanges").off("click").click(function () {
+										var saveButton = $(this);
+										saveButton.text("Saving...");
+										
+										var cgEl = $("#currentReportGroups li");
+										var curGroups = "";
+										for (var i=0; i<cgEl.length; i++)
+										{
+											var gr = $(cgEl[i]).find("span").eq(0).text();
+											curGroups += $(cgEl[i]).find("span").eq(0).text();
+											if (i < cgEl.length - 1)
+											{
+												curGroups += ",";
+											}
+										}
+										var reportScript  = $("#reportScript").val();
+										
+										$.ajax({
+											"url": "reportData.php"
+											,"method": "GET"
+											,"contentType": "json"
+											,"data": {"reportType": "Report_Set_Groups", "col_id": col_id
+												, "col_group_names": curGroups
+												, "col_report_filename": reportScript}
+											,"success": function (d)
+											{
+												saveButton.text("Saved!");
+												window.setTimeout(function () { $("#dlgReportGroups").modal("hide"); applyFilter(); }, 600);
+											}
+											,"error": function (e)
+											{
+												saveButton.text("Error.");
+												console.error("Error building Report Management tab.:", e);
+											}
+										});
+									});
+									$("#dlgReportGroups").modal();
+								});
+							});
+						});
+					}
+					
+					$(btnFilter).click(function () {
+						applyFilter();
+					});
+
+					
+					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append(col_name);
+					$(columns).find("#col1").append(col_desc);
+
+					$(columns).find("#col1").append("<hr>");
+
+					$(columns).find("input[type=text]").keypress(function (evt) {
+						if (evt.keyCode == 13)
+						{
+							applyFilter();
+						}
+					});
+
+					$(columns).find("#col1").append(btnFilter);
+					
+					$(rparams).append(columns);
+
+				break;
+				case 'Group Management':
+					
+					// Bootstrap divides the .row into 12 .col-* classes, so .col-xs-6 is like getting two 50% columns.
+					var columns = $("<div class='container'><div class='row'><div class='col-xs-6' id='col1'></div><div class='col-xs-6' id='col2'></div></div></div>");
+
+					// Textbox to Filter on Group Name Column
+					var col_group = wrapInput("Group(s)", "input", "");
+
+					var btnFilter = document.createElement("input");
+					btnFilter.type = "button";
+					btnFilter.value = "Search";
+
+					var btnNewGroup = document.createElement("input");
+					btnNewGroup.type = "button";
+					btnNewGroup.value = "New Group";
+					$(btnNewGroup).click(function () {
+						
+						var newname = prompt("Enter New Group Name");
+						
+						$.ajax({
+							"url": "reportData.php"
+							,"method": "GET"
+							,"contentType": "json"
+							,"data": {"reportType": "Users_New_Group"
+								, "col_group_name": newname}
+							,"success": function (d)
+							{
+								btnNewGroup.text("Saved!");
+								window.setTimeout(function () { $(btnNewGroup).text("New Group"); });
+							}
+							,"error": function (e)
+							{
+								btnNewGroup.text("Error.");
+								console.error("Error creating group:", e);
+							}
+						});						
+					});					
+										
+					var applyFilter = function()
+					{
+
+						var params = {
+							"reportType": reportId
+							,"col_group_name": $(col_group).find("input").val()
+						};
+						loadTableData(params, function () {
+							$("#pageContainer tr").each(function (index) {
+								var col_id = $(this).find("td").eq(0).text();
+								$("#groupName").val($(this).find("td").eq(1).text());
+								var col_group_name = $("#groupName").val();
+									
+								$(this).off("click").click(function () {
+									loadReportGroupsData($(this).find("td").eq(0).text());
+									
+									$("#btnGroupRemove").off("click").click(function () {
+										var remButton = $(this);
+										remButton.text("Removing...");
+										$.ajax({
+											"url": "reportData.php"
+											,"method": "GET"
+											,"contentType": "json"
+											,"data": {"reportType": "Delete_Group", "col_id": col_id
+												}
+											,"success": function (d)
+											{
+												remButton.text("Removed!");
+												window.setTimeout(function () { $("#dlgGroupSettings").modal("hide"); applyFilter(); }, 600);
+											}
+											,"error": function (e)
+											{
+												remButton.text("Error.");
+												console.error("Error deleting group.:", e);
+											}
+										});
+									});
+									
+									$("#btnGroupSaveChanges").text("Save Changes");
+									$("#btnGroupSaveChanges").off("click").click(function () {
+										var saveButton = $(this);
+										saveButton.text("Saving...");
+
+										$.ajax({
+											"url": "reportData.php"
+											,"method": "GET"
+											,"contentType": "json"
+											,"data": {"reportType": "Update_Groups", "col_id": col_id
+												, "col_group_name": col_group_name
+												}
+											,"success": function (d)
+											{
+												saveButton.text("Saved!");
+												window.setTimeout(function () { $("#dlgGroupSettings").modal("hide"); applyFilter(); }, 600);
+											}
+											,"error": function (e)
+											{
+												saveButton.text("Error.");
+												console.error("Error building Report Management tab.:", e);
+											}
+										});
+									});
+									$("#dlgGroupSettings").modal();
+								});
+							});
+						});
+					}
+					
+					$(btnFilter).click(function () {
+						applyFilter();
+					});
+
+					
+					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append(col_group);
+
+					$(columns).find("#col1").append("<hr>");
+
+					$(columns).find("input[type=text]").keypress(function (evt) {
+						if (evt.keyCode == 13)
+						{
+							applyFilter();
+						}
+					});
+
+					$(columns).find("#col1").append(btnFilter);
+
+					$(columns).find("#col2").append("<hr>");
+					$(columns).find("#col2").append(btnNewGroup);
+										
+					$(rparams).append(columns);
+					
+					applyFilter();
 
 				break;
 			}
@@ -628,7 +1040,7 @@
 		
 		}
 		
-		function loadTableData(params)
+		function loadTableData(params, callback)
 		{
 			// Start AJAX call and populate the HTML table
 			// element with the resulting data.
@@ -646,6 +1058,8 @@
 				,"success": function (d)
 				{
 					buildTable(JSON.stringify(d));
+					if (callback != undefined)
+						callback();
 				}
 				,"error": function (e)
 				{
@@ -654,14 +1068,282 @@
 			});
 		
 		}
+		function loadUserGroupsData(id, callback)
+		{
+			// Start AJAX call and populate the User Groups dialog
+			// with the user's current groups and the list of available
+			// groups to add them to.
+			//
+			// params argument should be a JSON object with the
+			// $_GET parameters to be passed to PHP as key/value
+			// pairs.
+
+
+			// Function takes array and outputs either
+			// the x or the + variant of the <li> item
+			var csvToLi = function(csv, currentList)
+			{
+
+				if (currentList == undefined)
+					currentList = false;
+					
+				var el = "";
+				for (var i=0; i<csv.length; i++)
+				{
+					if (currentList)
+					{				
+						el += '<li><span class="label">' + csv[i] + 
+							'</span><button type="button" class="close" aria-label="Remove"><span aria-hidden="true">&cross;</span></button>' +
+							'</li>';
+					}
+					else
+					{
+						el += '<li><span class="label">' + csv[i] + 
+							'</span><button type="button" class="close" aria-label="Add"><span aria-hidden="true">&#10010;</span></button>' +
+							'</li>';
+					}
+				}
+				return el;
+			}
+			
+			$.ajax({
+				"url": "reportData.php"
+				,"method": "GET"
+				,"contentType": "json"
+				,"data": {"reportType": "Users_Groups_List", "col_id": id}
+				,"success": function (d)
+				{
+				
+//					$("#userFullName").text(d[1].fname + ' ' + d[1].lname);
+
+					if (d[1] != undefined && d[1] != null && d[1].group_list != null && d[1].group_list != undefined)
+					{
+						$("#currentGroups").empty().append( csvToLi(d[1].group_list.split(","), true) );
+					
+						var curlist = d[1].group_list.split(",");
+					}
+					else
+					{
+						$("#currentGroups").empty();
+						var curlist = [];
+					}
+
+					$.ajax({
+						"url": "reportData.php"
+						,"method": "GET"
+						,"contentType": "json"
+						,"data": {"reportType": "Users_Groups_Available"}
+						,"success": function (groups)
+						{
+							var newlist = [];
+							groups = groups[0].group_list.split(",");
+							for (var j=0; j<groups.length; j++)
+							{
+								var found = false;
+								for (var i=0; i<curlist.length; i++)
+								{
+									if (curlist[i] == groups[j])
+									{
+										found = true;
+										break;
+									}
+								}
+								if (!found)
+								{
+									newlist.push(groups[j]);
+								}
+							}
+							if (groups.length == 0)
+								newlist = groups;
+							
+						
+							$("#availableGroups").empty().append( csvToLi(newlist, false) );
+					
+
+							// Give the admin this group tag.
+							var addTag = function ()
+							{
+								var cl = $(this).parent().clone();
+								cl.find("span").eq(1).html("&cross;");
+								cl.find("button").off("click").click(removeTag);
+								$("#currentGroups").append(cl)
+								$(this).parent().remove();
+							}
+							
+							$("#availableGroups button[aria-label=Add]").click(addTag);
+
+							// Take this group tag away from the admin.
+							var removeTag = function ()
+							{
+								var cl = $(this).parent().clone();
+								cl.find("span").eq(1).html("&#10010;");
+								cl.find("button").off("click").click(addTag);
+								
+								$("#availableGroups").append(cl)
+								$(this).parent().remove();
+							}
+							$("#currentGroups button[aria-label=Remove]").click(removeTag);
+					
+							if (callback != undefined)
+								callback();
+						}
+						,"error": function (e)
+						{
+							console.error("Error building user groups view:", e);
+						}
+					});
+							
+					if (callback != undefined)
+						callback();
+				}
+				,"error": function (e)
+				{
+					console.error("Error building user groups view:", e);
+				}
+			});
+		
+		}
+		function loadReportGroupsData(id, callback)
+		{
+			// Start AJAX call and populate the User Groups dialog
+			// with the user's current groups and the list of available
+			// groups to add them to.
+			//
+			// params argument should be a JSON object with the
+			// $_GET parameters to be passed to PHP as key/value
+			// pairs.
+
+
+			// Function takes array and outputs either
+			// the x or the + variant of the <li> item
+			var csvToLi = function(csv, currentList)
+			{
+
+				if (currentList == undefined)
+					currentList = false;
+					
+				var el = "";
+				for (var i=0; i<csv.length; i++)
+				{
+					if (currentList)
+					{				
+						el += '<li><span class="label">' + csv[i] + 
+							'</span><button type="button" class="close" aria-label="Remove"><span aria-hidden="true">&cross;</span></button>' +
+							'</li>';
+					}
+					else
+					{
+						el += '<li><span class="label">' + csv[i] + 
+							'</span><button type="button" class="close" aria-label="Add"><span aria-hidden="true">&#10010;</span></button>' +
+							'</li>';
+					}
+				}
+				return el;
+			}
+			
+			$.ajax({
+				"url": "reportData.php"
+				,"method": "GET"
+				,"contentType": "json"
+				,"data": {"reportType": "Report_Groups_List", "col_id": id}
+				,"success": function (d)
+				{
+
+					if (d[1] != undefined && d[1] != null && d[1].report_groups != undefined && d[1].report_groups != null)
+					{
+						$("#currentReportGroups").empty().append( csvToLi(d[1].report_groups.split(","), true) );
+						$("#reportScript").val(d[1].col_report_script);
+					
+						var curlist = d[1].report_groups.split(",");
+					}
+					else
+					{
+						$("#currentReportGroups").empty();
+						var curlist = [];
+					}
+
+					$.ajax({
+						"url": "reportData.php"
+						,"method": "GET"
+						,"contentType": "json"
+						,"data": {"reportType": "Users_Groups_Available"}
+						,"success": function (groups)
+						{
+							var newlist = [];
+							groups = groups[0].group_list.split(",");
+							for (var j=0; j<groups.length; j++)
+							{
+								var found = false;
+								for (var i=0; i<curlist.length; i++)
+								{
+									if (curlist[i] == groups[j])
+									{
+										found = true;
+										break;
+									}
+								}
+								if (!found)
+								{
+									newlist.push(groups[j]);
+								}
+							}
+							if (groups.length == 0)
+								newlist = groups;
+						
+							$("#availableReportGroups").empty().append( csvToLi(newlist, false) );
+					
+
+							// Give the admin this group tag.
+							var addRTag = function ()
+							{
+								var cl = $(this).parent().clone();
+								cl.find("span").eq(1).html("&cross;");
+								cl.find("button").off("click").click(removeRTag);
+								$("#currentReportGroups").append(cl)
+								$(this).parent().remove();
+							}
+							
+							$("#availableReportGroups button[aria-label=Add]").off("click").click(addRTag);
+
+							// Take this group tag away from the admin.
+							var removeRTag = function ()
+							{
+								var cl = $(this).parent().clone();
+								cl.find("span").eq(1).html("&#10010;");
+								cl.find("button").off("click").click(addRTag);
+								
+								$("#availableReportGroups").append(cl)
+								$(this).parent().remove();
+							}
+							$("#currentReportGroups button[aria-label=Remove]").off("click").click(removeRTag);
+					
+							if (callback != undefined)
+								callback();
+						}
+						,"error": function (e)
+						{
+							console.error("Error building user groups view:", e);
+						}
+					});
+							
+					if (callback != undefined)
+						callback();
+				}
+				,"error": function (e)
+				{
+					console.error("Error building user groups view:", e);
+				}
+			});
+		
+		}
 		
 		$(document).ready(function (m) {
 	
 		
-			$(".post-preview").click(function (m) {
+			$(".post-preview a").click(function (m) {
 				var report = $(m.currentTarget).find("h2")[0].innerText;
-				
-				changeReport(report);
+				var reportId = $(m.currentTarget).attr("col_id");
+				changeReport(report, reportId);
 				loadTableData();
 			});
 			
@@ -692,9 +1374,6 @@
 					<li>
 						<a href="#" onclick="goHome();">Home</a>
 					</li>
-					<li>
-						<a href="login.html">Login / Register</a>
-					</li>
 				</ul>
 			</div>
 			<!-- /.navbar-collapse -->
@@ -720,74 +1399,106 @@
 	<a name="main"></a>
 	<div id="nav" class="container">
 		<div class="row">
-			<div class="post-preview report-tile">
-				<a href="#">
-					<h2 class="post-title">
-						Blocks / Reinforcements
-					</h2>
-					<h3 class="post-subtitle">
-						Reinforcement logs.
-					</h3>
-				</a>
-				
-			</div>
 
-			<div class="post-preview report-tile">
-				<a href="#">
-					<h2 class="post-title">
-						Chat
-					</h2>
-					<h3 class="post-subtitle">
-			Chat history.
-					</h3>
-				</a>
-			</div>
+<?php
+
+if(isset($authUrl))
+{
+	echo '
+		<div class="post-preview report-tile">
+			<a href="'.$authUrl.'">
+				<h2 class="post-title">Authentication</h2>
+				<h3>Login with Google</h3>
+			</a>
+		</div>
+	';
+}
+else
+{
+
+	// Using $mysqli->real_escape_string instead of the canonical way to prepare statements
+	// because it's really awkward to do with mysqli on dynamically generated queries.
+	// Simply escaping like this should prevent injection attacks.
+	
+	if (isset($_SESSION['google_data']['id']))
+	{
+		$user_oauth_uid = $_SESSION['google_data']['id'];
+	
+
+		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+		$query = "SELECT 	r.col_id
+					,r.col_report_name
+					,r.col_report_description
+					,r.col_report_image_url
+			FROM civex_logging.tbl_reports AS r 
+			INNER JOIN (
+					SELECT
+						rgl.col_report_id
+					FROM
+						civex_logging.tbl_report_group_link AS rgl
+					INNER JOIN
+						civex_logging.tbl_user_groups AS ug
+					ON
+						rgl.col_group_id = ug.col_id
+					INNER JOIN
+						civex_logging.tbl_user_group_link AS ugl
+					ON
+						ugl.col_group_id = ug.col_id
+					INNER JOIN
+						civex_logging.tbl_users_oauth u
+					ON
+						ugl.col_user_oauth_id = u.oauth_uid
+						AND u.oauth_uid = '$user_oauth_uid'
+				) AS g
+			ON 	g.col_report_id = r.col_id
+		";
+	
+		$query = $query . ";";// COMMIT;";
+
+		$stmt = $mysqli->stmt_init();
+		if(!$stmt->prepare($query))
+		{
+			$mysqli->close();
+			exit;
+		}
+		else
+		{
+			if ($result = $mysqli->query($query))
+			{
+				while($row = $result->fetch_assoc())
+				{
+					echo '<div class="post-preview report-tile">
+						<a href="#" col_id="' . $row['col_id'] . '">
+							<img src="' . $row['col_report_image_url'] . '"/>
+							<h2 class="post-title">
+								' . $row['col_report_name'] . '
+							</h2>
+							<h3 class="post-subtitle">
+								' . $row['col_report_description'] . '
+							</h3>
+						</a>
 			
+					</div>';
+				}
+			}
 
-			<div class="post-preview report-tile">
-				<a href="#">
-					<h2 class="post-title">
-						Sessions
-					</h2>
-					<h3 class="post-subtitle">
-			Session logs.
-					</h3>
-				</a>
-			</div>
+			$stmt->close();
+		}
 
+		$mysqli->close();
+	
+		echo '
+		
 			<div class="post-preview report-tile">
-				<a href="#">
-					<h2 class="post-title">
-						Commands
-					</h2>
-					<h3 class="post-subtitle">
-			Command logs.
-					</h3>
-				</a>
+				<a href="logout.php?logout"><h2 class="post-title">Welcome ' . $_SESSION['google_data']['given_name'] . '</h2>
+				<h3 class="post-subtitle">Logout from Google</h3></a>
 			</div>
+		';
+	}
+	
+}
 
-			<div class="post-preview report-tile">
-				<a href="#">
-					<h2 class="post-title">
-						Entities
-					</h2>
-					<h3 class="post-subtitle">
-						Entity logs.
-					</h3>
-				</a>
-			</div>
-			
-
-			<div class="post-preview report-tile">
-				<a href="#">
-					<h2 class="post-title">
-						Users
-					</h2>
-					<h3 class="post-subtitle">
-						User management.
-					</h3>
-				</a>
-			</div>
+?>
 
 		</div>
 		
@@ -851,6 +1562,101 @@
 
 	<!-- Theme JavaScript -->
 	<script src="js/clean-blog.min.js"></script>
+	
+	<div class="modal fade" tabindex="-1" role="dialog" id="dlgUserGroups">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h3 class="modal-title">User Groups</h3>
+				</div>
+				<div class="modal-body">
+					<div>
+						<h4>Current Groups</h4>
+						<p id="userFullName"></p>
+						<ul class="grouplist" id="currentGroups">
+							<i>Loading...</i>
+						</ul>
+
+						<hr/>
+
+						<h4>Available Groups</h4>
+						
+						<ul class="grouplist" id="availableGroups">
+							<i>Loading...</i>
+						</ul>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="btnSaveChanges">Save Changes</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	
+	<div class="modal fade" tabindex="-1" role="dialog" id="dlgReportGroups">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h3 class="modal-title">Report Settings</h3>
+				</div>
+				<div class="modal-body">
+					<div>
+						<h4>Current Groups</h4>
+						<p id="userFullName"></p>
+						<ul class="grouplist" id="currentReportGroups">
+							<i>Loading...</i>
+						</ul>
+
+						<hr/>
+
+						<h4>Available Groups</h4>
+						
+						<ul class="grouplist" id="availableReportGroups">
+							<i>Loading...</i>
+						</ul>
+					</div>
+					
+					<div>
+						<h4>Report Script</h4>
+
+						<input id="reportScript" size=30 value=""/>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Remove</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="btnReportSaveChanges">Save Changes</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+	<div class="modal fade" tabindex="-1" role="dialog" id="dlgGroupSettings">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h3 class="modal-title">Group Settings</h3>
+				</div>
+				<div class="modal-body">			
+					<div>
+						<h4>Group Name</h4>
+
+						<input id="groupName" size=30 value=""/>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" id="btnGroupRemove" data-dismiss="modal">Remove</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="btnGroupSaveChanges">Save Changes</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 
 </body>
 
