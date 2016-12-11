@@ -27,5 +27,5 @@
 	
 	$mysqli->close();
 	echo "[]";
-	exit(1);
+	exit;
 ?>

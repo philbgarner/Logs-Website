@@ -30,7 +30,78 @@ if ($gClient->getAccessToken()) {
 
 
 include_once('dbconfig.php');
+
+$reportList = array();
+
+if(!isset($authUrl))
+{
+
+	// Using $mysqli->real_escape_string instead of the canonical way to prepare statements
+	// because it's really awkward to do with mysqli on dynamically generated queries.
+	// Simply escaping like this should prevent injection attacks.
+	
+	if (isset($_SESSION['google_data']['id']))
+	{
+		$user_oauth_uid = $_SESSION['google_data']['id'];
+	
+
+		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+		$query = "SELECT 	r.col_id
+					,r.col_report_name
+					,r.col_report_description
+					,r.col_report_image_url
+			FROM civex_logging.tbl_reports AS r 
+			INNER JOIN (
+					SELECT
+						rgl.col_report_id
+					FROM
+						civex_logging.tbl_report_group_link AS rgl
+					INNER JOIN
+						civex_logging.tbl_user_groups AS ug
+					ON
+						rgl.col_group_id = ug.col_id
+					INNER JOIN
+						civex_logging.tbl_user_group_link AS ugl
+					ON
+						ugl.col_group_id = ug.col_id
+					INNER JOIN
+						civex_logging.tbl_users_oauth u
+					ON
+						ugl.col_user_oauth_id = u.oauth_uid
+						AND u.oauth_uid = '$user_oauth_uid'
+				) AS g
+			ON 	g.col_report_id = r.col_id
+		";
+	
+		$query = $query . ";";// COMMIT;";
+
+		$stmt = $mysqli->stmt_init();
+		if(!$stmt->prepare($query))
+		{
+			$mysqli->close();
+			exit;
+		}
+		else
+		{
+			if ($result = $mysqli->query($query))
+			{
+				while($row = $result->fetch_assoc())
+				{
+					$reportList[] = $row;
+				}
+			}
+
+			$stmt->close();
+		}
+
+		$mysqli->close();
+
+	}
+	
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -85,9 +156,9 @@ include_once('dbconfig.php');
 			
 			height: 3em;
 			
-			padding: 5px;
-			margin: 0px;
-			margin-left: 25px;
+			padding: 0.2em;
+			margin: 0em;
+			margin-left: 1.2em;
 		}
 		.grouplist li span.label
 		{
@@ -116,6 +187,60 @@ include_once('dbconfig.php');
 			font: italic 12pt arial, sans-serif !important;
 			
 			color: #090909;
+		}
+		#navmenu
+		{
+			background-color: #1a1a1a;
+			color: #f1f1f1;
+			padding: 1em;
+		}
+		#navmenu a
+		{
+			color: #f1f1f1;
+		}
+		#navmenu ul
+		{
+			list-style: none;
+			width: 20em;
+			margin: 0em;
+			padding: 0.5em;
+			margin-right: 4em;
+			background-color: #1a1a1a;
+			color: #f1f1f1;
+		}
+		#navmenu ul li
+		{
+			float: left;
+			width: 5em;
+			display: inline;
+			color: #f1f1f1;
+		}
+		#navmenu ul li:hover ul
+		{
+			display: block;
+			position: absolute;
+			z-index: 9999;
+		}
+		#navmenu ul li ul
+		{
+			display: none;
+
+		}
+		#navmenu ul li ul li
+		{
+			margin: 0em;
+			padding: 0.2em;
+			width: 15em;
+			position: relative;
+			
+			border-left-style: dotted;
+			border-left-width: 1px;
+			border-left-color: #adddfd;
+		}
+		
+		header
+		{
+			margin-bottom: 0em !important;
 		}
 
 	
@@ -206,6 +331,8 @@ include_once('dbconfig.php');
 					});
 
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+					
 					$(columns).find("#col1").append(col_message);
 					$(columns).find("#col1").append(col_channel);
 					$(columns).find("#col1").append(col_sender);
@@ -337,6 +464,8 @@ include_once('dbconfig.php');
 					});
 
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+
 					$(columns).find("#col1").append(col_playername);
 					$(columns).find("#col1").append(col_action);
 					$(columns).find("#col1").append(col_item_held_left);
@@ -422,6 +551,8 @@ include_once('dbconfig.php');
 					});
 
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+
 					$(columns).find("#col1").append(col_session);
 					$(columns).find("#col1").append(col_player);
 					$(columns).find("#col1").append(col_ipaddress);
@@ -499,6 +630,8 @@ include_once('dbconfig.php');
 					});
 
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+
 					$(columns).find("#col1").append(col_player);
 					$(columns).find("#col1").append(col_command);
 					$(columns).find("#col1").append(col_arguments);
@@ -607,6 +740,8 @@ include_once('dbconfig.php');
 					});
 
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+
 					$(columns).find("#col1").append(col_entity_type);
 					$(columns).find("#col1").append(col_jocky);
 					$(columns).find("input[type=text]").keypress(function (evt) {
@@ -668,12 +803,12 @@ include_once('dbconfig.php');
 								, "col_group_name": newname}
 							,"success": function (d)
 							{
-								btnNewGroup.text("Saved!");
+								$(btnNewGroup).text("Saved!");
 								window.setTimeout(function () { $(btnNewGroup).text("New Group"); });
 							}
 							,"error": function (e)
 							{
-								btnNewGroup.text("Error.");
+								$(btnNewGroup).text("Error.");
 								console.error("Error creating group:", e);
 							}
 						});						
@@ -747,6 +882,8 @@ include_once('dbconfig.php');
 					});
 
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+
 					$(columns).find("#col1").append(col_admin);
 					$(columns).find("#col1").append(col_groups);
 
@@ -846,6 +983,8 @@ include_once('dbconfig.php');
 
 					
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+
 					$(columns).find("#col1").append(col_name);
 					$(columns).find("#col1").append(col_desc);
 
@@ -878,28 +1017,7 @@ include_once('dbconfig.php');
 					var btnNewGroup = document.createElement("input");
 					btnNewGroup.type = "button";
 					btnNewGroup.value = "New Group";
-					$(btnNewGroup).click(function () {
-						
-						var newname = prompt("Enter New Group Name");
-						
-						$.ajax({
-							"url": "reportData.php"
-							,"method": "GET"
-							,"contentType": "json"
-							,"data": {"reportType": "Users_New_Group"
-								, "col_group_name": newname}
-							,"success": function (d)
-							{
-								btnNewGroup.text("Saved!");
-								window.setTimeout(function () { $(btnNewGroup).text("New Group"); });
-							}
-							,"error": function (e)
-							{
-								btnNewGroup.text("Error.");
-								console.error("Error creating group:", e);
-							}
-						});						
-					});					
+					
 										
 					var applyFilter = function()
 					{
@@ -969,12 +1087,37 @@ include_once('dbconfig.php');
 						});
 					}
 					
+					$(btnNewGroup).click(function () {
+						
+						var newname = prompt("Enter New Group Name");
+						
+						$.ajax({
+							"url": "reportData.php"
+							,"method": "GET"
+							,"contentType": "json"
+							,"data": {"reportType": "Users_New_Group"
+								, "col_group_name": newname}
+							,"success": function (d)
+							{
+								$(btnNewGroup).val("Saved!");
+								window.setTimeout(function () { $(btnNewGroup).val("New Group"); applyFilter(); }, 600);
+							}
+							,"error": function (e)
+							{
+								$(btnNewGroup).val("Error.");
+								console.error("Error creating group:", e);
+							}
+						});						
+					});
+					
 					$(btnFilter).click(function () {
 						applyFilter();
 					});
 
 					
 					// Add the controls created above to the DOM.
+					$(columns).find("#col1").append($("<h2>" + report + "</h2>"));
+
 					$(columns).find("#col1").append(col_group);
 
 					$(columns).find("#col1").append("<hr>");
@@ -1035,7 +1178,7 @@ include_once('dbconfig.php');
 			
 			var rp = document.querySelector("#pageContainer")
 			rp.appendChild(table);
-			$("#reports").slideDown("slow");
+			$("#reports").slideDown("fast");
 
 		
 		}
@@ -1346,7 +1489,13 @@ include_once('dbconfig.php');
 				changeReport(report, reportId);
 				loadTableData();
 			});
-			
+			$("#navmenu a").click(function (m) {
+				var report = $(m.currentTarget).find("span")[0].innerText;
+				var reportId = $(m.currentTarget).attr("col_id");
+				changeReport(report, reportId);
+				loadTableData();
+			});
+						
 		});
 		
 		
@@ -1356,30 +1505,6 @@ include_once('dbconfig.php');
 </head>
 
 <body>
-
-	<!-- Navigation -->
-	<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-		<div class="container-fluid">
-			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="navbar-header page-scroll">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-					<span class="sr-only">Toggle navigation</span>
-					Menu <i class="fa fa-bars"></i>
-				</button>	
-			</div>
-
-			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav navbar-right">
-					<li>
-						<a href="#" onclick="goHome();">Home</a>
-					</li>
-				</ul>
-			</div>
-			<!-- /.navbar-collapse -->
-		</div>
-		<!-- /.container -->
-	</nav>
 
 	<!-- Page Header -->
 	<!-- Set your background image for this header on the line below. -->
@@ -1394,9 +1519,54 @@ include_once('dbconfig.php');
 			</div>
 		</div>
 	</header>
+	
+	<!-- Drop Down Menu Navigation -->
+	<div id="navmenu">
+		<div class="row">
+		<ul>
+		<li><a href="#">Menu</a>
+			<ul>
+		<?php
 
-	<!-- Main Content -->
-	<a name="main"></a>
+		if(!isset($authUrl))
+		{
+
+			// Using $mysqli->real_escape_string instead of the canonical way to prepare statements
+			// because it's really awkward to do with mysqli on dynamically generated queries.
+			// Simply escaping like this should prevent injection attacks.
+	
+			if (isset($_SESSION['google_data']['id']))
+			{
+
+				foreach($reportList as $row)
+				{
+					echo '<li>
+						<a href="#" col_id="' . $row['col_id'] . '">
+							<span>
+								' . $row['col_report_name'] . '
+							</span>
+						</a>
+
+					</li>';
+				}
+
+				echo '
+	
+					<li>
+						<a href="logout.php?logout"><span>Logout from Google</span></a>
+					</li>
+				';
+			}
+	
+		}
+		?>
+			</ul>
+		</li>
+		<li><a href="index.php">Home</a></li>
+		</ul>
+		</div>
+	</div>
+	
 	<div id="nav" class="container">
 		<div class="row">
 
@@ -1422,73 +1592,25 @@ else
 	
 	if (isset($_SESSION['google_data']['id']))
 	{
-		$user_oauth_uid = $_SESSION['google_data']['id'];
-	
 
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT 	r.col_id
-					,r.col_report_name
-					,r.col_report_description
-					,r.col_report_image_url
-			FROM civex_logging.tbl_reports AS r 
-			INNER JOIN (
-					SELECT
-						rgl.col_report_id
-					FROM
-						civex_logging.tbl_report_group_link AS rgl
-					INNER JOIN
-						civex_logging.tbl_user_groups AS ug
-					ON
-						rgl.col_group_id = ug.col_id
-					INNER JOIN
-						civex_logging.tbl_user_group_link AS ugl
-					ON
-						ugl.col_group_id = ug.col_id
-					INNER JOIN
-						civex_logging.tbl_users_oauth u
-					ON
-						ugl.col_user_oauth_id = u.oauth_uid
-						AND u.oauth_uid = '$user_oauth_uid'
-				) AS g
-			ON 	g.col_report_id = r.col_id
-		";
-	
-		$query = $query . ";";// COMMIT;";
-
-		$stmt = $mysqli->stmt_init();
-		if(!$stmt->prepare($query))
+		foreach($reportList as $row)
 		{
-			$mysqli->close();
-			exit;
-		}
-		else
-		{
-			if ($result = $mysqli->query($query))
-			{
-				while($row = $result->fetch_assoc())
-				{
-					echo '<div class="post-preview report-tile">
-						<a href="#" col_id="' . $row['col_id'] . '">
-							<img src="' . $row['col_report_image_url'] . '"/>
-							<h2 class="post-title">
-								' . $row['col_report_name'] . '
-							</h2>
-							<h3 class="post-subtitle">
-								' . $row['col_report_description'] . '
-							</h3>
-						</a>
-			
-					</div>';
-				}
-			}
+			echo '<div class="post-preview report-tile">
+				<a href="#" col_id="' . $row['col_id'] . '">
+					<img src="' . $row['col_report_image_url'] . '"/>
+					<h2 class="post-title">
+						' . $row['col_report_name'] . '
+					</h2>
+					<h3 class="post-subtitle">
+						' . $row['col_report_description'] . '
+					</h3>
+				</a>
 
-			$stmt->close();
+			</div>';
 		}
 
-		$mysqli->close();
-	
 		echo '
-		
+	
 			<div class="post-preview report-tile">
 				<a href="logout.php?logout"><h2 class="post-title">Welcome ' . $_SESSION['google_data']['given_name'] . '</h2>
 				<h3 class="post-subtitle">Logout from Google</h3></a>

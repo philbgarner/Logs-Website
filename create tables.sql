@@ -7,7 +7,23 @@ DROP TABLE tbl_user_groups;
 DROP TABLE tbl_user_group_link;
 DROP TABLE tbl_reports;
 DROP TABLE tbl_report_group_link;
+DROP TABLE tbl_report_history;
 
+-- Report History Table
+
+CREATE TABLE IF NOT EXISTS `tbl_report_history` (
+	`col_id` int(11) NOT NULL AUTO_INCREMENT,
+	`col_report_id` int(11) NOT NULL,
+	`col_report_name` varchar(32) NOT NULL,
+	`col_parameters` varchar(255) NOT NULL,
+	`col_user_oauth_id` varchar(255) NOT NULL,
+	`col_createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURERNT_TIMESTAMP,
+	PRIMARY KEY (`col_id`),
+	KEY `col_report_id` (`col_report_id`),
+	KEY `col_user_oauth_id` (`col_user_oauth_id`),
+	KEY `col_report_id` (`col_report_id`));
+
+  
 -- User Group Link Table
 
 CREATE TABLE IF NOT EXISTS `tbl_report_group_link` ( 
@@ -29,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `tbl_user_groups` (
                   PRIMARY KEY (`col_id`), 
                   KEY `col_group_createdon` (`col_group_createdon`),
                   KEY `col_group_name` (`col_group_name`),
-                  UNIQUE (col_group_name));
+                  UNIQUE (`col_group_name`));
 
 -- Reports Table
 
@@ -149,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `tbl_command_log` (
 
 -- ChatTable
 
-CREATE TABLE IF NOT EXISTS tbl_chat_log (
+CREATE TABLE IF NOT EXISTS `tbl_chat_log` (
              `col_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
              `col_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
              `col_channel` varchar(255) NOT NULL,
@@ -194,7 +210,7 @@ KEY `col_cancelled` (`col_reinforcement_health`));
 
 -- Refresh test data in session table.
 
-INSERT INTO tbl_session_log
+INSERT INTO `tbl_session_log`
 (
 	col_id
 	,col_player_uuid
@@ -223,7 +239,7 @@ VALUES
 
 -- Refresh test data in command log
 
-INSERT INTO tbl_command_log
+INSERT INTO `tbl_command_log`
 (
 	col_id
 	,col_timestamp
@@ -238,7 +254,7 @@ VALUES
 
 
 -- Refresh data in Entity log.
-INSERT INTO tbl_entity_spawn_log
+INSERT INTO `tbl_entity_spawn_log`
 (
 	col_entity_type
 	,col_timestamp
@@ -248,12 +264,12 @@ INSERT INTO tbl_entity_spawn_log
 	,col_z
 )
 VALUES
-('ZOMBIE', '2016-12-01 06:32:01', 0, 25, 15, 8)
-,('SKELETON', '2016-12-01 06:32:01', 1, 25, 334, 8);
+('ZOMBIE', '2016-12-01 06:32:01', 0, 25.5656, 15.1234, 8.5456)
+,('SKELETON', '2016-12-01 06:32:01', 1, 25.3434, 334.4341, 8.1235);
 
 -- Create default user groups.
 
-INSERT INTO tbl_user_groups
+INSERT INTO `tbl_user_groups`
 (
                   `col_group_name`
 )
@@ -269,20 +285,20 @@ VALUES ('110636005117259337708', 2), ('106974236239021394922', 3), ('10697423623
 
 -- Create Detault Report Definitions
 
-INSERT INTO tbl_reports (`col_report_name`, `col_report_description`, `col_report_filename`, `col_report_image_url`, `col_isVisible`) VALUES 
+INSERT INTO `tbl_reports` (`col_report_name`, `col_report_description`, `col_report_filename`, `col_report_image_url`, `col_isVisible`) VALUES 
 	('Blocks / Reinforcements', 'Reinforcement logs.', 'reports/blocks.php', 'img/Diamond_Ore.png', 1)
 	,('Chat', 'Chat history.', 'reports/chat.php', 'img/VillagerHead.png', 1)
 	,('Sessions', 'Sessions logs.', 'reports/session.php', 'img/Jukebox.png', 1)
 	,('Commands', 'Commands logs.', 'reports/commands.php', 'img/Command_Block.png', 1)
 	,('Entities', 'Entity logs.', 'reports/entities.php', 'img/Skeleton_Skull.png', 1)
 	,('Users', 'User Management.', 'reports/users.php', 'img/Head.png', 1)
-	,('Report Management', 'Defining reports and groups.', 'reports/reportManagement.php', 'img/Head.png', 1);
+	,('Report Management', 'Defining reports and groups.', 'reports/reportManagement.php', 'img/Head.png', 1)
 	,('Group Management', 'Creating and editing groups.', 'reports/groupList.php', 'img/Head.png', 1);
 
 	
 -- Create Default Setup for Reports
 	
-INSERT INTO tbl_report_group_link (`col_report_id` , `col_group_id`) VALUES 
+INSERT INTO `tbl_report_group_link` (`col_report_id` , `col_group_id`) VALUES 
 	 (1, 1)
 	,(2, 1)
 	,(3, 1)
@@ -290,6 +306,7 @@ INSERT INTO tbl_report_group_link (`col_report_id` , `col_group_id`) VALUES
 	,(5, 1)
 	,(6, 1)
 	,(7, 1)
+	,(8, 1)
 
 	,(1, 3)
 	,(2, 3)
@@ -297,5 +314,7 @@ INSERT INTO tbl_report_group_link (`col_report_id` , `col_group_id`) VALUES
 	,(4, 3)
 	,(5, 3)
 	,(6, 2)
-	,(7, 2);
+	,(7, 2)
+	,(8, 2);
+	
 
