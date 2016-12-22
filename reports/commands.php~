@@ -7,7 +7,14 @@
 		$hRow['col_cancelled'] = 'Cancelled';
 		
 		$headerRow[] = $hRow;
-		$query = "SELECT 	col_id
+		$query = "SELECT
+				'Id' AS col_id
+				,'Timestamp' AS col_timestamp
+				,'Player' AS col_player
+				,'Command' AS col_command
+				,'Arguments' AS col_arguments
+				,'Cancelled' AS col_cancelled
+ 			UNION SELECT 	col_id
 					,col_timestamp
 					,col_player
 					,col_command

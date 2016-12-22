@@ -40,5 +40,5 @@
 			$joinWord = "AND";
 		}
 
-
+		$query = $query . ";";// COMMIT;";
 ?>

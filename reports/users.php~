@@ -11,7 +11,18 @@
 		$hRow['created'] = 'Date Created';
 		$hRow['modified'] = 'Date Updated';
 		
-		$query = "SELECT 	u.id
+		$query = "SELECT
+				'Id' AS id
+				,'Picture' AS picture
+				,'First Name' AS fname
+				,'Last Name' AS lname
+				,'Groups' AS group_list
+				,'Email' AS email
+				,'OAuth Provider' AS oauth_provider
+				,'OAuth UId' AS oauth_uid
+				,'Date Created' AS created
+				,'Date Updated' AS modified
+			UNION SELECT 	u.id
 					,u.picture
 					,u.fname
 					,u.lname
