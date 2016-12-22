@@ -13,9 +13,7 @@ in the tutorial to configure in Google (register API key, etc).
 ## Important Files
 
 reportData.php - Either serves up the report requested (by col_id, matching to a database entry) or
-	accepts parameters to update or insert records (API calls).
-
-	-Passing GET parameters will also filter the report on those columns.
+	accepts parameters to update or insert records (API calls). Passing GET parameters will also filter the report on those columns.
 
 reports/*.php - These are the scripts included in reportData.php if they match the reportType parameter.
 
@@ -82,10 +80,10 @@ The other JS/CSS files are standard files for Bootstrap and DOM manipulation/AJA
 
 - We need to implement controls on who can make API updates
 - jQuery and vanilla DOM syntax are mixed in ui_parameters.js functions, this should be corrected to just jQuery
-- Some of the scripts in /reports/ broke when I added the $hRow[] method of creating headers for the rows, the old
-  way I was doing it was using UNION which would not have been appropriate for a large table.
-- The /src/ folder should be removed in GIT before we push this to the general repository because the licence
-on that project does not permit bundling the code.
+- Some of the scripts in /reports/ broke when I added the $hRow[] method of creating headers for the rows, the old way I was doing it was using UNION which would not have been appropriate for a large table.
+- The /src/ folder should be removed in GIT before we push this to the general repository because the licence on that project does not permit bundling the code.
+- TODO: Ryan wanted a 'nickname' ability (so allow admin/owner users to do that?)
+- Notes feature (Ryan's notes below) is still required.  I was imagining a system where you can click on the relevant table row and add a note, tagging other users with @nickname so when they log in they see a notification.
 
 -------------------------------------------------------------------------------------------------
 
