@@ -35,57 +35,7 @@ css/reporting-styles.css - This stylesheet handles the custom elements for our p
 
 The other JS/CSS files are standard files for Bootstrap and DOM manipulation/AJAX scripting (jQuery).
 
-## Execution Flow
 
-- index.php - Lists reports that the user is permitted to view/displayes the report view if the user
-	clicks on it (SPA functionality, pull via AJAX).
-- reportData.php - Receives request for a report/execute API operation.  This file will include() the
-	appropriate script from /reports/ according to the reportType parameter passed via GET.
-	- The $query variable will be executed inside reportData.php, but it's built in the /reports/
-	script.  The SQL query is not terminated with a semicolon intentionally, so that reportData.php
-	can append a LIMIT clause for pagination.
-- index.php - When the AJAX call to reportData.php succeeds, it calls loadTableData() function from ui_parameters.js
-	and builds the headers with 20 rows of results (configurable in reportData.php).
-	
-# Reports
-
-- Users
-	Report that shows the users who have authenticated (logged in) and which groups they're assigned. Also
-	add/remove/udpate.
-	
-- Report Management
-	Lists the reports that have been created and which groups they belong to. Also add/remove/update.
-
-- Group Management
-	Lists the groups that have been created. Also add/remove/update.
-
-- Report History
-	Shows the history of calls to reportData.php and the parameters that were passed by which user.
-
-- Blocks / Reinforcements
-	List block placement/reinforcement actions.
-
-- Chat
-	Reports on chat history.
-
-- Sessions
-	Shows session history information.
-
-- Commands
-	Command history report.
-
-- Entities
-	Lists the entity history report.
-
-
-# TODO / Bug List
-
-- We need to implement controls on who can make API updates
-- jQuery and vanilla DOM syntax are mixed in ui_parameters.js functions, this should be corrected to just jQuery
-- Some of the scripts in /reports/ broke when I added the $hRow[] method of creating headers for the rows, the old
-  way I was doing it was using UNION which would not have been appropriate for a large table.
-- The /src/ folder should be removed in GIT before we push this to the general repository because the licence
-on that project does not permit bundling the code.
 
 -------------------------------------------------------------------------------------------------
 
