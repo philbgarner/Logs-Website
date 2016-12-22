@@ -1,24 +1,26 @@
 <?php
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT
-				'Id' AS col_id
-				,'Timestamp' AS col_timestamp
-				,'World' AS col_world
-				,'Action' AS col_action
-				,'Player Name' AS col_player
-				,'Item Held Right' AS col_item_held_right
-				,'Item Held Left' AS col_item_held_left
-				,'PlayerX' AS col_player_x
-				,'PlayerY' AS col_player_y
-				,'PlayerZ' AS col_player_z
-				,'Block Type' AS col_block_type
-				,'BlockX' AS col_block_x
-				,'BlockY' AS col_block_y
-				,'BlockZ' AS col_block_z
-				,'Content' AS col_content
-				,'Reinforcement Health' AS col_reinforcement_health
-				,'Group Name' AS col_group_name
-			UNION SELECT 	col_id
+
+		$hRow['col_id'] = 'Id';
+		$hRow['col_id'] = 'Id';
+		$hRow['col_timestamp'] = 'Timestamp';
+		$hRow['col_world'] = 'World';
+		$hRow['col_action'] = 'Action';
+		$hRow['col_player'] = 'Player';
+		$hRow['col_item_held_right'] = 'Item Held Right';
+		$hRow['col_item_held_left'] = 'Item Held Left';
+		$hRow['col_player_x'] = 'PlayerX';
+		$hRow['col_player_y'] = 'PlayerY';
+		$hRow['col_player_z'] = 'PlayerZ';
+		$hRow['col_block_type'] = 'Block Type';
+		$hRow['col_block_x'] = 'BlockX';
+		$hRow['col_block_y'] = 'BlockY';
+		$hRow['col_block_z'] = 'BlockZ';
+		$hRow['col_content'] = 'Content';
+		$hRow['col_reinforcement_health'] = 'Reinforcement Health';
+		$hRow['col_group_name'] = 'Group Name';
+
+		
+		$query = "SELECT 	col_id
 					,col_timestamp
 					,col_world
 					,col_action
@@ -85,5 +87,4 @@
 			$joinWord = "AND";
 		}
 
-		$query = $query . ";";// COMMIT;";
 ?>

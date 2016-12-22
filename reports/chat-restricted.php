@@ -1,7 +1,12 @@
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT 	'Id' AS col_id	, 'Timestamp' AS col_timestamp	,'Channel' AS col_channel
-			, 'Sender' AS col_sender	,'Receiver' AS col_receiver	,'Message' AS col_message 
-			UNION SELECT 	col_id	,col_timestamp	,col_channel	,col_sender	,col_receiver	,col_message 	FROM civex_logging.tbl_chat_log ";
+<?php
+		$hRow['col_id'] = 'Id';
+		$hRow['col_timestamp'] = 'Timestamp';
+		$hRow['col_channel'] = 'World';
+		$hRow['col_sender'] = 'Action';
+		$hRow['col_receiver'] = 'Player';
+		$hRow['col_message'] = 'Item Held Right';
+		
+		$query = "SELECT 	col_id	,col_timestamp	,col_channel	,col_sender	,col_receiver	,col_message 	FROM civex_logging.tbl_chat_log ";
 
 		// Only append WHERE if it's the first condition in the list of parameters.
 		$joinWord = "WHERE";
@@ -41,4 +46,8 @@
 			$joinWord = "AND";
 		}
 
-		$query = $query . ";";// COMMIT;";
+		$query = $query . " $joinWord col_sender NOT LIKE '%HiImPosey%' AND col_receiver NOT LIKE '%HiImPosey%' "; // This could be moved out to a proper table
+														// and inner joined on user id so that exclusion names
+														// can be dynamically updated.
+
+?>

@@ -1,20 +1,19 @@
 <?php
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT
-				'Id' AS id
-				,'Report Id' AS col_report_id
-				,'Report Name' AS col_report_name
-				,'Parameters' AS col_report_description
-				,'User OAuth Id' AS col_user_oauth_id
-				,'User Name' AS col_user_name
-				,'Create Date' AS col_createdon
-			UNION SELECT 
+		$hRow['col_id'] = 'Id';
+		$hRow['col_report_id'] = 'Report Id';
+		$hRow['col_report_name'] = 'Report Name';
+		$hRow['col_parameters'] = 'Parameters';
+		$hRow['col_user_oauth_id'] = 'User OAuth Id';
+		$hRow['col_user_name'] = 'User Name';
+		$hRow['col_createdon'] = 'Create Date';
+		
+		$query = "SELECT 
 				`col_id`
-				,`col_report_id`
+				,r.col_report_id
 				,`col_report_name`
 				,`col_parameters`
 				,`col_user_oauth_id`
-				,'' AS `col_user_name`
+				,`col_user_name`
 				,`col_createdon`
 			FROM civex_logging.tbl_report_history AS r 
 			LEFT JOIN (
@@ -27,8 +26,8 @@
 					ON
 						rgl.col_group_id = ug.col_id
 					GROUP BY rgl.col_report_id
-				) AS g
-			ON 	g.col_report_id = r.col_id
+				) AS g 
+			ON  	g.col_report_id = r.col_report_id 
 			 ";
 
 		// Only append WHERE if it's the first condition in the list of parameters.
@@ -44,5 +43,4 @@
 			$joinWord = "AND";
 		}
 
-		$query = $query . ";";// COMMIT;";
 ?>

@@ -1,5 +1,12 @@
 <?php
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+		$hRow['col_id'] = 'Id';
+		$hRow['col_timestamp'] = 'Timestamp';
+		$hRow['col_player'] = 'Player';
+		$hRow['col_command'] = 'Command';
+		$hRow['col_arguments'] = 'Arguments';
+		$hRow['col_cancelled'] = 'Cancelled';
+		
+		$headerRow[] = $hRow;
 		$query = "SELECT
 				'Id' AS col_id
 				,'Timestamp' AS col_timestamp
@@ -52,7 +59,5 @@
 			$query = $query . " $joinWord col_timestamp >= '" . $mysqli->real_escape_string($_GET['col_timestamp_to']) . "'	";
 			$joinWord = "AND";
 		}
-
-		$query = $query . ";";// COMMIT;";
 
 ?>

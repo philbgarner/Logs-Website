@@ -1,13 +1,13 @@
-<?php		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT
-				'Id' AS col_id
-				,'Entity Type' AS col_entity_type
-				,'Timestamp' AS col_timestamp
-				,'Jocky' AS col_jocky
-				,'EntityX' AS col_x
-				,'EntityY' AS col_y
-				,'EntityZ' AS col_z
-			UNION SELECT 	col_id
+<?php
+		$hRow['col_id'] = 'Id';
+		$hRow['col_entity_type'] = 'Entity Type';
+		$hRow['col_timestamp'] = 'Timestamp';
+		$hRow['col_jocky'] = 'Jocky';
+		$hRow['col_x'] = 'EntityX';
+		$hRow['col_y'] = 'EntityY';
+		$hRow['col_z'] = 'EntityZ';
+		
+		$query = "SELECT 	col_id
 					,col_entity_type
 					,col_timestamp
 					,col_jocky
@@ -59,5 +59,4 @@
 			$joinWord = "AND";
 		}
 
-		$query = $query . ";";// COMMIT;";
 ?>

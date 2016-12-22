@@ -1,5 +1,16 @@
 <?php
 		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+		$hRow['id'] = 'Id';
+		$hRow['picture'] = 'Picture';
+		$hRow['fname'] = 'First Name';
+		$hRow['lname'] = 'Last Name';
+		$hRow['group_list'] = 'Groups';
+		$hRow['email'] = 'Email';
+		$hRow['oauth_provider'] = 'oAuth Provider';
+		$hRow['oauth_uid'] = 'OAuth UId';
+		$hRow['created'] = 'Date Created';
+		$hRow['modified'] = 'Date Updated';
+		
 		$query = "SELECT
 				'Id' AS id
 				,'Picture' AS picture

@@ -1,0 +1,207 @@
+		/*	Navigation bar reports.	*/
+		.report-tile
+		{
+			float: left;
+			width: 15em;
+			height: 10em;
+		}
+		.report-tile a img
+		{
+			float: left;
+			width: 75px;
+			height: 75px;
+			margin: 5px;
+			cursor: pointer;
+		}
+		.grouplist
+		{
+			list-style-type: none;
+			
+			height: 3em;
+			
+			padding: 0.2em;
+			margin: 0em;
+			margin-left: 1.2em;
+		}
+		.grouplist li span.label
+		{
+			color: #090909;
+			padding-right: 15px;
+		}
+		.grouplist li
+		{
+			float: left;
+
+			width: auto;
+			height: 2em;
+			
+			padding: 5px;
+			padding-left: 10px;
+			padding-right: 10px;
+			margin: 5px;
+			
+			border-radius: 5px;
+			-moz-border-radius: 5px;
+			
+			border-style: none;
+			background-color: #e9e9e9;
+			float: left;
+			
+			font: italic 12pt arial, sans-serif !important;
+			
+			color: #090909;
+		}
+		#navmenu
+		{
+			background-color: #1a1a1a;
+			color: #f1f1f1;
+			padding: 1em;
+		}
+		#navmenu a
+		{
+			color: #f1f1f1;
+		}
+		#navmenu ul
+		{
+			list-style: none;
+			width: 20em;
+			margin: 0em;
+			padding: 0.5em;
+			margin-right: 4em;
+			background-color: #1a1a1a;
+			color: #f1f1f1;
+		}
+		#navmenu ul li
+		{
+			float: left;
+			width: 5em;
+			display: inline;
+			color: #f1f1f1;
+		}
+		#navmenu ul li:hover ul
+		{
+			display: block;
+			position: absolute;
+			z-index: 9999;
+		}
+		#navmenu ul li ul
+		{
+			display: none;
+
+		}
+		#navmenu ul li ul li
+		{
+			margin: 0em;
+			padding: 0.2em;
+			width: 15em;
+			position: relative;
+			
+			border-left-style: dotted;
+			border-left-width: 1px;
+			border-left-color: #adddfd;
+		}
+		
+		header
+		{
+			margin-bottom: 0em !important;
+		}
+		
+
+
+	table a:link {
+		color: #666;
+		font-weight: bold;
+		text-decoration:none;
+	}
+	table a:visited {
+		color: #999999;
+		font-weight:bold;
+		text-decoration:none;
+	}
+	table a:active,
+	table a:hover {
+		color: #bd5a35;
+		text-decoration:underline;
+	}
+	table {
+		font-family:Arial, Helvetica, sans-serif;
+		color:#666;
+		font-size:12px;
+		text-shadow: 1px 1px 0px #fff;
+		background:#eaebec;
+		margin:0px;
+		border:#ccc 1px solid;
+
+		-moz-border-radius:3px;
+		-webkit-border-radius:3px;
+		border-radius:3px;
+
+		-moz-box-shadow: 0 1px 2px #d1d1d1;
+		-webkit-box-shadow: 0 1px 2px #d1d1d1;
+		box-shadow: 0 1px 2px #d1d1d1;
+	}
+	table thead {
+		padding:21px 25px 22px 25px;
+		border-top:1px solid #fafafa;
+		border-bottom:1px solid #e0e0e0;
+
+		background: #ababab;
+		background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
+		background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
+	}
+	table thead:first-child {
+		text-align: left;
+		padding-left:20px;
+	}
+	table tr:first-child thead:first-child {
+		-moz-border-radius-topleft:3px;
+		-webkit-border-top-left-radius:3px;
+		border-top-left-radius:3px;
+	}
+	table tr:first-child thead:last-child {
+		-moz-border-radius-topright:3px;
+		-webkit-border-top-right-radius:3px;
+		border-top-right-radius:3px;
+	}
+	table tr {
+		text-align: center;
+		padding-left:20px;
+	}
+	table td:first-child {
+		text-align: left;
+		padding-left:20px;
+		border-left: 0;
+	}
+	table td {
+		padding:18px;
+		border-top: 1px solid #ffffff;
+		border-bottom:1px solid #e0e0e0;
+		border-left: 1px solid #e0e0e0;
+
+		background: #fafafa;
+		background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
+		background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa);
+	}
+	table tr.even td {
+		background: #f6f6f6;
+		background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#f6f6f6));
+		background: -moz-linear-gradient(top,  #f8f8f8,  #f6f6f6);
+	}
+	table tr:last-child td {
+		border-bottom:0;
+	}
+	table tr:last-child td:first-child {
+		-moz-border-radius-bottomleft:3px;
+		-webkit-border-bottom-left-radius:3px;
+		border-bottom-left-radius:3px;
+	}
+	table tr:last-child td:last-child {
+		-moz-border-radius-bottomright:3px;
+		-webkit-border-bottom-right-radius:3px;
+		border-bottom-right-radius:3px;
+	}
+	table tr:hover td {
+		background: #f2f2f2;
+		background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
+		background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	
+	}

@@ -1,10 +1,9 @@
 <?php
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT
-				'Id' AS id
-				,'Group Name' AS col_group_name
-				,'Created On' AS col_group_createdon
-			UNION SELECT 	u.col_id
+		$hRow['col_id'] = 'Id';
+		$hRow['col_group_name'] = 'Group Name';
+		$hRow['col_group_createdon'] = 'Created On';
+		
+		$query = "SELECT 	u.col_id
 					,u.col_group_name
 					,u.col_group_createdon
 			FROM civex_logging.tbl_user_groups AS u 
@@ -29,5 +28,4 @@
 			$joinWord = "AND";
 		}
 
-		$query = $query . ";";// COMMIT;";
 ?>

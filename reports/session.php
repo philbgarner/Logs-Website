@@ -1,13 +1,13 @@
 <?php
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT
-				'Session Id' AS col_id
-				,'Player UUID' AS col_player_uuid
-				,'Player Name' AS col_player_name
-				,'IP Address' AS col_ip
-				,'Login Time' AS col_login
-				,'Logout Time' AS col_logout 
-			UNION SELECT 	col_id
+		$hRow['col_id'] = 'Session Id';
+		$hRow['col_player_uuid'] = 'Player UUID';
+		$hRow['col_player_name'] = 'Player Name';
+		$hRow['col_ip'] = 'IP Address';
+		$hRow['col_login'] = 'Login Time';
+		$hRow['col_logout'] = 'Logout Time';
+		
+		$headerRow[] = $hRow;
+		$query = "SELECT 	col_id
 					,col_player_uuid
 					,col_player_name
 					,col_ip
@@ -52,5 +52,4 @@
 			$query = $query . " $joinWord col_logout <= '" . $mysqli->real_escape_string($_GET['col_timestamp_logout_to']) . "'	";
 			$joinWord = "AND";
 		}
-		$query = $query . ";";// COMMIT;";
 ?>

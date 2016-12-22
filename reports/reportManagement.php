@@ -1,12 +1,11 @@
 <?php
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT
-				'Id' AS id
-				,'Report Name' AS col_report_name
-				,'Description' AS col_report_description
-				,'Report Groups' AS report_groups
-				,'Script Name' AS col_report_script
-			UNION SELECT 	r.col_id
+		$hRow['col_id'] = 'Id';
+		$hRow['col_report_name'] = 'Report Name';
+		$hRow['col_report_description'] = 'Description';
+		$hRow['report_groups'] = 'Report Groups';
+		$hRow['col_report_script'] = 'Script Name';
+		
+		$query = "SELECT 	r.col_id
 					,r.col_report_name
 					,r.col_report_description
 					,g.report_groups
@@ -44,6 +43,4 @@
 			$query = $query . " $joinWord r.col_report_description LIKE '%" . $mysqli->real_escape_string($_GET['col_report_description']) . "%'	";
 			$joinWord = "AND";
 		}
-
-		$query = $query . ";";// COMMIT;";
 ?>

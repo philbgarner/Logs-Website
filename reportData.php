@@ -4,6 +4,36 @@ header("Content-Type: application/json");
 session_start();
 include_once('dbconfig.php');
 
+$maxRows = 20;
+
+function insertHistory($mysqli, $report_id, $report_name, $params, $oauth_id, $user_name)
+{
+	// Insert record of this request into the history table.
+
+	$query = "INSERT INTO civex_logging.tbl_report_history (`col_report_id`, `col_report_name`, `col_parameters`, `col_user_oauth_id`, `col_user_name`) 
+		VALUES (
+			'$report_id'
+			,'$report_name'
+			,'$params'
+			,'$oauth_id'
+			,'$user_name'
+		);
+	";
+
+	if(!$mysqli->query($query))
+	{
+		$mysqli->close();
+		echo '["error": "Error inserting record to log history table, cannot proceed."]';
+		exit;
+	}
+	else
+	{
+		$mysqli->commit();
+	}
+
+
+}
+
 if (isset($_GET['reportType']) && strlen($_GET['reportType']) > 0)
 {
 	$reportType = $_GET['reportType'];
@@ -23,6 +53,7 @@ if (isset($_SESSION['google_data']['id']) && preg_match('/[0-9]/', $_GET['report
 	//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 	$query = "SELECT 	r.col_id
 				,r.col_report_filename
+				,r.col_report_name
 		FROM civex_logging.tbl_reports AS r 
 		INNER JOIN (
 				SELECT
@@ -86,6 +117,11 @@ else
 	// If it's not an integer, it must be an API call that has
 	// a string identifier, implemented via switch() { case }.
 
+
+	// Insert a record of the API call being made.
+	insertHistory($mysqli, $reportType, 'API Call', '{ "params": ' . json_encode($_GET) . '}', $_SESSION['google_data']['id'], $_SESSION['google_data']['given_name'] . ' ' . $_SESSION['google_data']['family_name']);
+
+
 	switch($reportType)
 	{
 		case 'Users_New_Group':
@@ -112,6 +148,12 @@ else
 		case 'Delete_Group':
 			include('reports/deleteGroup.php');
 		break;
+		case 'New_Report':
+			include('reports/newReport.php');
+		break;
+		case 'Delete_Report':
+			include('reports/deleteReport.php');
+		break;
 		default:
 			$mysqli->close();
 			echo '[{"message":"Set filters and click Search."}]';
@@ -126,31 +168,75 @@ if (isset($row['col_report_filename']))
 	include($row['col_report_filename']);
 }
 
+if (isset($_GET['page_number']))
+{
+	$startCount = ($_GET['page_number'] - 1) * $maxRows;
+}
+else
+{
+	$startCount = 0;
+}
+
+// Insert record of the report being accessed.
+insertHistory($mysqli, $_GET['reportType'], $row['col_report_name'], '{ "params": ' . json_encode($_GET) . '}', $_SESSION['google_data']['id'], $_SESSION['google_data']['given_name'] . ' ' . $_SESSION['google_data']['family_name']);
+
+$noLimitQuery = $query . ";";
+$query = $query . " LIMIT $startCount, $maxRows;";
+
+$jsonArray = array();
+
 $stmt = $mysqli->stmt_init();
 if(!$stmt->prepare($query))
 {
 	$mysqli->close();
-	echo '[{"error":"Failed to prepare statement"}]';
+	echo '[{"error":"Failed to prepare statement: ' . $query . '"}]';
 	exit;
 }
 else
 {
-	$jsonArray = array();
 	if ($result = $mysqli->query($query))
 	{
 		while($row = $result->fetch_assoc())
 		{
 			$jsonArray[] = $row;
 		}
-		echo json_encode($jsonArray);
 	}
 	else
 	{
-		echo "[]";
+		$jsonArray = [];
 	}
 	
 	$stmt->close();
 }
+
+$rcount = 0;
+$stmt = $mysqli->stmt_init();
+if(!$stmt->prepare($noLimitQuery))
+{
+	$mysqli->close();
+	echo '[{"error":"Failed to prepare statement: ' . $noLimitQuery . '"}]';
+	exit;
+}
+else
+{
+	if ($result = $mysqli->query($noLimitQuery))
+	{
+		$rcount = $result->num_rows;
+	}
+	else
+	{
+		$jsonArray = [];
+	}
+	
+	$stmt->close();
+}
+
+$headerRow[] = $hRow;
+$rows = array_merge($headerRow, $jsonArray);
+//$rows[] = $headerRow + $jsonArray;
+$rc['row_count'] = $rcount;
+$rows[] = $rc;
+echo json_encode($rows);
 	
 $mysqli->close();
 ?>

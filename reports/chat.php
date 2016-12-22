@@ -1,8 +1,13 @@
 <?php
-		//$query = "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		$query = "SELECT 	'Id' AS col_id	, 'Timestamp' AS col_timestamp	,'Channel' AS col_channel
-			, 'Sender' AS col_sender	,'Receiver' AS col_receiver	,'Message' AS col_message 
-			UNION SELECT 	col_id	,col_timestamp	,col_channel	,col_sender	,col_receiver	,col_message 	FROM civex_logging.tbl_chat_log ";
+		$hRow['col_id'] = 'Id';
+		$hRow['col_timestamp'] = 'Timestamp';
+		$hRow['col_channel'] = 'Channel';
+		$hRow['col_sender'] = 'Sender';
+		$hRow['col_receiver'] = 'Receiver';
+		$hRow['col_message'] = 'Message';
+		
+		$headerRow[] = $hRow;
+		$query = "SELECT 	col_id	,col_timestamp	,col_channel	,col_sender	,col_receiver	,col_message 	FROM civex_logging.tbl_chat_log ";
 
 		// Only append WHERE if it's the first condition in the list of parameters.
 		$joinWord = "WHERE";
@@ -42,5 +47,4 @@
 			$joinWord = "AND";
 		}
 
-		$query = $query . ";";// COMMIT;";
 ?>

@@ -4,7 +4,7 @@
 		$col_id = $mysqli->real_escape_string($_GET['col_id']);
 
 		$query = "DELETE FROM civex_logging.tbl_user_groups WHERE col_id = '$col_id' AND col_id <> 1;"; // col_group_id = 1 is the Owner group.
-//		echo $query;
+
 		$stmt = $mysqli->stmt_init();
 		if(!$stmt->prepare($query))
 		{
@@ -30,7 +30,7 @@
 		$stmt->close();
 		
 		$query = "DELETE FROM civex_logging.tbl_user_group_link WHERE col_group_id = '$col_id';";
-//		echo $query;
+
 		$stmt = $mysqli->stmt_init();
 		if(!$stmt->prepare($query))
 		{
@@ -56,7 +56,7 @@
 		$stmt->close();
 
 		$query = "DELETE FROM civex_logging.tbl_report_group_link WHERE col_group_id = '$col_id';";
-//		echo $query;
+
 		$stmt = $mysqli->stmt_init();
 		if(!$stmt->prepare($query))
 		{

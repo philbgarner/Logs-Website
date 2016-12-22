@@ -5,10 +5,12 @@
 		
 		$col_id = $mysqli->real_escape_string($_GET['col_id']);
 		$col_report_filename = $mysqli->real_escape_string($_GET['col_report_filename']);
+		$col_report_name = $mysqli->real_escape_string($_GET['col_report_name']);
+		$col_report_desc = $mysqli->real_escape_string($_GET['col_report_description']);
 		$group_list[] = explode(",", $mysqli->real_escape_string($_GET['col_group_names']));
 
 		$query = "DELETE FROM civex_logging.tbl_report_group_link WHERE col_report_id = '$col_id' AND col_group_id <> 1;"; // col_group_id = 1 is the Owner group.
-//		echo $query;
+
 		$stmt = $mysqli->stmt_init();
 		if(!$stmt->prepare($query))
 		{
@@ -63,6 +65,8 @@
 		
 		$query = "UPDATE civex_logging.tbl_reports
 				SET col_report_filename = '$col_report_filename'
+				,col_report_name = '$col_report_name'
+				,col_report_description = '$col_report_desc' 
 		WHERE col_id = '$col_id';";
 
 		$stmt = $mysqli->stmt_init();

@@ -9,17 +9,39 @@ DROP TABLE tbl_reports;
 DROP TABLE tbl_report_group_link;
 DROP TABLE tbl_report_history;
 
+-- End Portal Table
+
+CREATE TABLE IF NOT EXISTS tbl_end_portals (
+	col_id int(11) NOT NULL AUTO_INCREMENT,
+	col_created_timestamp timestamp NULL DEFAULT NULL,
+	col_created_by varchar(255) NOT NULL,
+	col_destroyed_timestamp timestamp NULL DEFAULT NULL,
+	col_destroyed_by varchar(255) DEFAULT NULL,
+	col_citadel_group varchar(255) DEFAULT NULL,
+	col_world varchar(255) NOT NULL,
+	col_block_x int(11) NOT NULL,
+	col_block_y int(11) NOT NULL,
+	col_block_z int(11) NOT NULL,
+PRIMARY KEY (col_id),
+KEY col_created_by (col_created_by),
+KEY col_destroyed_by (col_destroyed_by),
+KEY col_citadel_group (col_citadel_group),
+KEY col_world (col_world),
+KEY col_block_x (col_block_x),
+KEY col_block_y (col_block_y),
+KEY col_block_z (col_block_z));
+
 -- Report History Table
 
 CREATE TABLE IF NOT EXISTS `tbl_report_history` (
 	`col_id` int(11) NOT NULL AUTO_INCREMENT,
-	`col_report_id` int(11) NOT NULL,
-	`col_report_name` varchar(32) NOT NULL,
-	`col_parameters` varchar(255) NOT NULL,
-	`col_user_oauth_id` varchar(255) NOT NULL,
-	`col_createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURERNT_TIMESTAMP,
+	`col_report_id` varchar(255) NOT NULL DEFAULT '',
+	`col_report_name` varchar(255) NOT NULL DEFAULT '',
+	`col_parameters` varchar(1000) NOT NULL DEFAULT '',
+	`col_user_oauth_id` varchar(255) NOT NULL DEFAULT '',
+	`col_user_name` varchar(255) NOT NULL DEFAULT '',
+	`col_createdon` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
 	PRIMARY KEY (`col_id`),
-	KEY `col_report_id` (`col_report_id`),
 	KEY `col_user_oauth_id` (`col_user_oauth_id`),
 	KEY `col_report_id` (`col_report_id`));
 
