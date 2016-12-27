@@ -46,7 +46,7 @@
 		
 		if (isset($_GET['col_admin']) && strlen($_GET['col_admin']) > 0)
 		{
-			$query = $query . " $joinWord (u.fname LIKE '%" . $mysqli->real_escape_string($_GET['col_admin']) . "%' OR u.lname LIKE '%" . $mysqli->real_escape_string($_GET['col_admin']) . "%')	";
+			$query = $query . " $joinWord CONCAT(fname, ' ', lname) LIKE '%" . $mysqli->real_escape_string($_GET['col_admin']) . "%'	";
 			$joinWord = "AND";
 		}
 

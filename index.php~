@@ -173,10 +173,10 @@ if(!isset($authUrl))
 					
 					setupParams(report, reportId, [
 						{"id": "col_message", "label": "Message", "inputType": "textbox", "value": "" }
-						,{"id": "col_channel", "label": "Channel", "inputType": "textbox", "value": "" }
-						,{"id": "col_sender", "label": "Sender", "inputType": "textbox", "value": "" }
-						,{"id": "col_receiver", "label": "Receiver", "inputType": "textbox", "value": "" }
-						,{"id": "col_timestamp", "label": "Timestamp", "inputType": "dateFromTo", "value": "" }
+						,{"id": "col_channel", "label": "Message", "inputType": "textbox", "value": "" }
+						,{"id": "col_sender", "label": "Message", "inputType": "textbox", "value": "" }
+						,{"id": "col_receiver", "label": "Message", "inputType": "textbox", "value": "" }
+						,{"id": "col_timestamp", "label": "Message", "inputType": "dateFromTo", "value": "" }
 						,{"id": "btnFilter", "label": "", "inputType": "button", "value": "Search" }
 					]);
 

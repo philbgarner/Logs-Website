@@ -6,6 +6,7 @@
 		$hRow['col_receiver'] = 'Receiver';
 		$hRow['col_message'] = 'Message';
 		
+		$headerRow[] = $hRow;
 		$query = "SELECT 	col_id	,col_timestamp	,col_channel	,col_sender	,col_receiver	,col_message 	FROM civex_logging.tbl_chat_log ";
 
 		// Only append WHERE if it's the first condition in the list of parameters.

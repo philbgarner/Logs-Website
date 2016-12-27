@@ -6,6 +6,7 @@
 		$hRow['col_login'] = 'Login Time';
 		$hRow['col_logout'] = 'Logout Time';
 		
+		$headerRow[] = $hRow;
 		$query = "SELECT 	col_id
 					,col_player_uuid
 					,col_player_name

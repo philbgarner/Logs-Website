@@ -240,10 +240,7 @@ if (isset($hRow))
 {
 	$headerRow[] = $hRow;
 }
-else
-{
-	$headerRow = [];
-}
+
 $rows = array_merge($headerRow, $jsonArray);
 //$rows[] = $headerRow + $jsonArray;
 $rc['row_count'] = $rcount;

@@ -6,6 +6,7 @@
 		$hRow['col_arguments'] = 'Arguments';
 		$hRow['col_cancelled'] = 'Cancelled';
 		
+		$headerRow[] = $hRow;
 		$query = "SELECT 	col_id
 					,col_timestamp
 					,col_player

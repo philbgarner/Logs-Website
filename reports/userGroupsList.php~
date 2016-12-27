@@ -1,10 +1,10 @@
 <?php
 
 		$hRow['col_id'] = 'Id';
-		$hRow['col_picture'] = 'Picture';
-		$hRow['col_fname'] = 'First Name';
-		$hRow['col_lname'] = 'Last Name';
-		$hRow['col_group_list'] = 'Current Groups';
+		$hRow['col_timestamp'] = 'Picture';
+		$hRow['col_player'] = 'First Name';
+		$hRow['col_command'] = 'Last Name';
+		$hRow['col_arguments'] = 'Current Groups';
 		
 		$query = "SELECT 	u.id
 					,u.picture

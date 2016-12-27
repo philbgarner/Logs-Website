@@ -1,4 +1,6 @@
 <?php
+	
+	$hRow['group_list'] = 'Group List';
 
 	$query = "SELECT
 			GROUP_CONCAT(DISTINCT ug.col_group_name) AS group_list
